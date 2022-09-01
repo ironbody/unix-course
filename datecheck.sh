@@ -1,8 +1,8 @@
 #!/bin/bash
 
-DAY=99
+DAY=$2
 MONTH=$1
-YEAR=2000
+YEAR=$3
 LEAP=False
 
 if (($YEAR % 4 == 0)) 
@@ -23,12 +23,20 @@ else
 fi
 
 case $MONTH in
-	1|[Jj]an) echo "wow its january";;
-	2|[Ff]eb) echo "wow its january";;
-	3|[Mm]ar) echo "wow its january";;
-	4|[Aa]pr) echo "wow its january";;
-	5|[Mm]ay) echo "wow its january";;
-	6|[Jj]un) echo "wow its january";;
+	1|[Jj]an) 
+		if [[ $DAY -le 31 && $DAY -ge 1 ]]
+		then
+			echo "EXISTS! $MONTH $DAY $YEAR is someone's birthday". 
+		else
+			echo "BAD INPUT: $MONTH $DAY $YEAR does not have $DAY days."
+		fi
+		;;
+	2|[Ff]eb) echo "wow its febrary";;
+
+	3|[Mm]ar) echo "wow its mars";;
+	4|[Aa]pr) echo "wow its april";;
+	5|[Mm]ay) echo "wow its may";;
+	6|[Jj]un) echo "wow its juni";;
 	7|[Jj]ul) echo "wow its january";;
 	8|[Aa]ug) echo "wow its january";;
 	9|[Ss]ep) echo "wow its january";;
