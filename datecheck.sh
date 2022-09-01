@@ -13,78 +13,74 @@ fi
 if [[ $(expr $YEAR % 4) == 0 ]]; then
 	if [[ $(expr $YEAR % 100) == 0 ]]; then
 		if [[ $(expr $YEAR % 400) == 0 ]]; then
-			echo "here 1"
 			LEAP=True
 		else
-			echo "here 2"
 			LEAP=False
 		fi
 	else
-		echo "here 3"
 		LEAP=True
 	fi
 else
-	echo "here 4"
 	LEAP=False
 fi
 
 case $MONTH in
 1 | [Jj]an)
 	if [[ $DAY -gt 31 ]]; then
-		echo "Dec does not have $DAY days"
+		echo "Jan does not have $DAY days"
 		exit
 	else
-		MONTH="Dec"
+		MONTH="Jan"
 	fi
 	;;
 2 | [Ff]eb)
 	if [ $LEAP == True ]; then
 		echo "is leap"
 		if [[ $DAY -gt 29 ]]; then
-			echo "Dec does not have $DAY days"
+			echo "Feb does not have $DAY days"
 			exit
 		else
-			MONTH="Dec"
+			MONTH="Feb"
 		fi
 	else
 		if [[ $DAY -gt 28 ]]; then
-			echo "Dec does not have $DAY days"
+			echo "Feb does not have $DAY days"
 			exit
 		else
-			MONTH="Dec"
+			MONTH="Feb"
 		fi
 	fi
 	;;
 3 | [Mm]ar)
 	if [[ $DAY -gt 31 ]]; then
-		echo "Dec does not have $DAY days"
+		echo "Mar does not have $DAY days"
 		exit
 	else
-		MONTH="Dec"
+		MONTH="Mar"
 	fi
 	;;
 4 | [Aa]pr)
 	if [[ $DAY -gt 31 ]]; then
-		echo "Dec does not have $DAY days"
+		echo "Apr does not have $DAY days"
 		exit
 	else
-		MONTH="Dec"
+		MONTH="Apr"
 	fi
 	;;
 5 | [Mm]ay)
 	if [[ $DAY -gt 31 ]]; then
-		echo "Dec does not have $DAY days"
+		echo "May does not have $DAY days"
 		exit
 	else
-		MONTH="Dec"
+		MONTH="May"
 	fi
 	;;
 6 | [Jj]un)
 	if [[ $DAY -gt 31 ]]; then
-		echo "Dec does not have $DAY days"
+		echo "Jun does not have $DAY days"
 		exit
 	else
-		MONTH="Dec"
+		MONTH="Jun"
 	fi
 	;;
 7 | [Jj]ul)
