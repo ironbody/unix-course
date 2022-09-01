@@ -16,13 +16,6 @@ checkDate () {
 	fi
 }
 
-
-
-if [[ $DAY -lt 1 ]]; then
-	echo "No month has less than 1 day"
-	exit
-fi
-
 if [[ $(expr $YEAR % 4) == 0 ]]; then
 	if [[ $(expr $YEAR % 100) == 0 ]]; then
 		if [[ $(expr $YEAR % 400) == 0 ]]; then
