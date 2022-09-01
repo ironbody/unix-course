@@ -1,8 +1,8 @@
 #!/bin/bash
 
-DAY=$2
+DAY=99
 MONTH=$1
-YEAR=$3
+YEAR=2000
 LEAP=False
 
 if (($YEAR % 4 == 0)) 
@@ -25,5 +25,5 @@ fi
 echo $LEAP
 
 case $MONTH in
-	\(1|jan\)) echo -n "wow its january";;
+	1|jan) echo -n "wow its january";;
 esac
