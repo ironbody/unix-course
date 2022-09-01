@@ -22,8 +22,17 @@ else
 	LEAP=False
 fi
 
-echo $LEAP
-
 case $MONTH in
-	1|jan) echo -n "wow its january";;
+	1|[Jj]an) echo "wow its january";;
+	2|[Ff]eb) echo "wow its january";;
+	3|[Mm]ar) echo "wow its january";;
+	4|[Aa]pr) echo "wow its january";;
+	5|[Mm]ay) echo "wow its january";;
+	6|[Jj]un) echo "wow its january";;
+	7|[Jj]ul) echo "wow its january";;
+	8|[Aa]ug) echo "wow its january";;
+	9|[Ss]ep) echo "wow its january";;
+	10|[Oo]ct) echo "wow its january";;
+	11|[Nn]ov) echo "wow its january";;
+	12|[Dd]ec) echo "wow its january";;
 esac
