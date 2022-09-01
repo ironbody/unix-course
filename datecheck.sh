@@ -5,6 +5,18 @@ MONTH=$1
 YEAR=$3
 LEAP=False
 
+checkDate () {
+	# day, month, max days in month
+	if [[ $1 -le $3 ]]
+	then
+		echo "1 - 31 in $2"
+	else	
+		echo "more than $3 days in $2"
+	fi
+}
+
+
+
 if [[ $DAY -lt 1 ]]; then
 	echo "No month has less than 1 day"
 	exit
@@ -25,13 +37,16 @@ else
 fi
 
 case $MONTH in
+
 1 | [Jj]an)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Jan does not have $DAY days"
-		exit
-	else
-		MONTH="Jan"
-	fi
+	# if [[ $DAY -gt 31 ]]; then
+	# 	echo "Dec does not have $DAY days"
+	# 	exit
+	# else
+	# 	MONTH="Dec"
+	# fi
+	# ;;
+	checkDate "$DAY" "$MONTH" 31
 	;;
 2 | [Ff]eb)
 	if [ $LEAP == True ]; then
