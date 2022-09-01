@@ -1,6 +1,10 @@
 #!/bin/bash
 
-if (($3 % 4 == 0)) 
+DAY=$2
+MONTH=$1
+YEAR=$3
+
+if ((YEAR % 4 == 0)) 
 then
 	echo "divde by 4"
 else 
