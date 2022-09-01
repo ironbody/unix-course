@@ -7,11 +7,12 @@ LEAP=False
 
 checkDate () {
 	# day, month, max days in month
-	if [[ $1 -le $3 ]]
+	if [[ $1 -le $3 && $1 -ge 1]]
 	then
-		echo "1 - 31 in $2"
+		echo "EXISTS! $3 $DAY $YEAR is somebody's birthday!"
+
 	else	
-		echo "more than $3 days in $2"
+		echo "BAD INPUT! $2 does not have $1 days"
 	fi
 }
 
@@ -50,7 +51,6 @@ case $MONTH in
 	;;
 2 | [Ff]eb)
 	if [ $LEAP == True ]; then
-		echo "is leap"
 		if [[ $DAY -gt 29 ]]; then
 			echo "Feb does not have $DAY days"
 			exit
@@ -154,5 +154,3 @@ case $MONTH in
 	checkDate $DAY "Dec" 31
 	;;
 esac
-
-echo "$MONTH $DAY $YEAR is somebody's birthday!"
