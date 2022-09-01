@@ -43,112 +43,44 @@ fi
 case $MONTH in
 
 1 | [Jj]an)
-	# if [[ $DAY -gt 31 ]]; then
-	# 	echo "Dec does not have $DAY days"
-	# 	exit
-	# else
-	# 	MONTH="Dec"
-	# fi
-	# ;;
-	checkDate "$DAY" "$MONTH" 31
+	checkDate "$DAY" "Jan" 31
 	;;
 2 | [Ff]eb)
 	if [ $LEAP == True ]; then
-		echo "is leap"
-		if [[ $DAY -gt 29 ]]; then
-			echo "Dec does not have $DAY days"
-			exit
-		else
-			MONTH="Dec"
-		fi
+		checkDate "$DAY" "Feb" 29
 	else
-		if [[ $DAY -gt 28 ]]; then
-			echo "Dec does not have $DAY days"
-			exit
-		else
-			MONTH="Dec"
-		fi
+		checkDate "$DAY" "Feb" 28
 	fi
 	;;
 3 | [Mm]ar)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Dec does not have $DAY days"
-		exit
-	else
-		MONTH="Dec"
-	fi
+	checkDate "$DAY" "Mar" 31
 	;;
 4 | [Aa]pr)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Dec does not have $DAY days"
-		exit
-	else
-		MONTH="Dec"
-	fi
+	checkDate "$DAY" "Apr" 30
 	;;
 5 | [Mm]ay)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Dec does not have $DAY days"
-		exit
-	else
-		MONTH="Dec"
-	fi
+	checkDate "$DAY" "May" 31
 	;;
 6 | [Jj]un)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Dec does not have $DAY days"
-		exit
-	else
-		MONTH="Dec"
-	fi
+	checkDate "$DAY" "Jun" 30
 	;;
 7 | [Jj]ul)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Jul does not have $DAY days"
-		exit
-	else
-		MONTH="Jul"
-	fi
+	checkDate "$DAY" "Jul" 31
 	;;
 8 | [Aa]ug)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Aug does not have $DAY days"
-		exit
-	else
-		MONTH="Aug"
-	fi
+	checkDate "$DAY" "Aug" 31
 	;;
 9 | [Ss]ep)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Sep does not have $DAY days"
-		exit
-	else
-		MONTH="Sep"
-	fi
+	checkDate "$DAY" "Sep" 30 
 	;;
 10 | [Oo]ct)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Oct does not have $DAY days"
-		exit
-	else
-		MONTH="Oct"
-	fi
+	checkDate "$DAY" "Feb" 31
 	;;
 11 | [Nn]ov)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Nov does not have $DAY days"
-		exit
-	else
-		MONTH="Nov"
-	fi
+	checkDate "$DAY" "Feb" 30
 	;;
 12 | [Dd]ec)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Dec does not have $DAY days"
-		exit
-	else
-		MONTH="Dec"
-	fi
+	checkDate "$DAY" "Feb" 31
 	;;
 esac
 
