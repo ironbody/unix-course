@@ -25,18 +25,14 @@ fi
 if [[ $(expr $YEAR % 4) == 0 ]]; then
 	if [[ $(expr $YEAR % 100) == 0 ]]; then
 		if [[ $(expr $YEAR % 400) == 0 ]]; then
-			echo "here 1"
 			LEAP=True
 		else
-			echo "here 2"
 			LEAP=False
 		fi
 	else
-		echo "here 3"
 		LEAP=True
 	fi
 else
-	echo "here 4"
 	LEAP=False
 fi
 
