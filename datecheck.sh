@@ -7,9 +7,9 @@ LEAP=False
 
 checkDate () {
 	# day, month, max days in month
-	if [[ $1 -le $3 && $1 -ge 1]]
+	if [[ $1 -le $3 && $1 -ge 1 ]]
 	then
-		echo "EXISTS! $3 $DAY $YEAR is somebody's birthday!"
+		echo "EXISTS! $2 $DAY $YEAR is somebody's birthday!"
 
 	else	
 		echo "BAD INPUT! $2 does not have $1 days"
