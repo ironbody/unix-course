@@ -67,20 +67,22 @@ case $MONTH in
 	fi
 	;;
 3 | [Mm]ar)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Mar does not have $DAY days"
-		exit
-	else
-		MONTH="Mar"
-	fi
+	# if [[ $DAY -gt 31 ]]; then
+	# 	echo "Mar does not have $DAY days"
+	# 	exit
+	# else
+	# 	MONTH="Mar"
+	# fi
+	checkDate $DAY "Mar" 31
 	;;
 4 | [Aa]pr)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Apr does not have $DAY days"
-		exit
-	else
-		MONTH="Apr"
-	fi
+	# if [[ $DAY -gt 31 ]]; then
+	# 	echo "Apr does not have $DAY days"
+	# 	exit
+	# else
+	# 	MONTH="Apr"
+	# fi
+	checkDate $DAY "Apr" 30
 	;;
 5 | [Mm]ay)
 	if [[ $DAY -gt 31 ]]; then
@@ -107,44 +109,49 @@ case $MONTH in
 	fi
 	;;
 8 | [Aa]ug)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Aug does not have $DAY days"
-		exit
-	else
-		MONTH="Aug"
-	fi
+	# if [[ $DAY -gt 31 ]]; then
+	# 	echo "Aug does not have $DAY days"
+	# 	exit
+	# else
+	# 	MONTH="Aug"
+	# fi
+	checkDate $DAY "Aug" 31
 	;;
 9 | [Ss]ep)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Sep does not have $DAY days"
-		exit
-	else
-		MONTH="Sep"
-	fi
+	# if [[ $DAY -gt 31 ]]; then
+	# 	echo "Sep does not have $DAY days"
+	# 	exit
+	# else
+	# 	MONTH="Sep"
+	# fi
+	checkDate $DAY "Sep" 30
 	;;
 10 | [Oo]ct)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Oct does not have $DAY days"
-		exit
-	else
-		MONTH="Oct"
-	fi
+	# if [[ $DAY -gt 31 ]]; then
+	# 	echo "Oct does not have $DAY days"
+	# 	exit
+	# else
+	# 	MONTH="Oct"
+	# fi
+	checkDate $DAY "Oct" 31
 	;;
 11 | [Nn]ov)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Nov does not have $DAY days"
-		exit
-	else
-		MONTH="Nov"
-	fi
+	# if [[ $DAY -gt 31 ]]; then
+	# 	echo "Nov does not have $DAY days"
+	# 	exit
+	# else
+	# 	MONTH="Nov"
+	# fi
+	checkDate $DAY "Nov" 30
 	;;
 12 | [Dd]ec)
-	if [[ $DAY -gt 31 ]]; then
-		echo "Dec does not have $DAY days"
-		exit
-	else
-		MONTH="Dec"
-	fi
+	# if [[ $DAY -gt 31 ]]; then
+	# 	echo "Dec does not have $DAY days"
+	# 	exit
+	# else
+	# 	MONTH="Dec"
+	# fi
+	checkDate $DAY "Dec" 31
 	;;
 esac
 
