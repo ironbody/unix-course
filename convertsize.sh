@@ -7,11 +7,10 @@ sizes=()
 
 fillArray () {
   start=$(( $NUM*1024**$1 ))
-  new=$start
   for i in {0..3}
   do
-    sizes+=($new)
-    new=$(echo "$new" | awk '{printf "%.4f", $1/1024}')
+    sizes+=($start)
+    start=$(echo "$start" | awk '{printf "%.4f", $1/1024}')
   done
 }
 
