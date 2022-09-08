@@ -7,20 +7,23 @@ then
         DIR=$(echo "$(du -h $1 | awk '{print $1}')");
         DIR_SIZE=$(echo "$(du -h $1 | awk '{print $2}')");
         PREMISSIONS=$(ls -l | awk '{if (NR==5) {print $1}}');
-        echo $OWNER_PRE;
         echo "$1 exists";
+        
 
         cd $1/..
-        OWNER_PRE=$(ls -l | awk '{if (NR>1) {print $1}}' | awk '$0 ~ /^d.w/ {print}';);
-        if [ OWNER_PRE == 1 ]
-            # warn if dir > 512MB
-            
+        pwd
+        #OWNER_PRE=$(ls -l | awk '{if (NR>1) ('$1 ~ /^d.w/') {print}}';
+        if [ OWNER_PRE ]
         then
-        else if [ OWNER_PRE == 0]
+            # warn if dir > 512MB
+            echo "In parent folder";
+            echo "in if loop";
+            echo $OWNER_PRE;
+            tar -czvf ./$DIR.tar.gz $DIR
+        else 
             echo "can not write the compressed file to the current directory";
+
         fi;
-        COMP_DIR=$();
-        tar -czvf ./$DIR.tar.gz $DIR
     else
         echo "$1 doesn't exist";
         echo "Not a directory! Give a directory as input";
