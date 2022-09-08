@@ -15,6 +15,7 @@ then
   echo "argument is not a directory"
   exit
 fi
+echo "$(dirname $1)"
 
 DIR="$(cd "$(dirname $1)"; pwd)/$(basename "$1")"
 echo $DIR
