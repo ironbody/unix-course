@@ -1,32 +1,33 @@
 #!/bin/bash
 
 compressfile() {
-  tar -czvf $1.tar.gz $1
+  tar -czf $1.tgz $1
+  echo "Directory $1 archived as $1.tgz"
 }
 
 if [[ $# -ne 1 ]]
 then
-  echo "pass exactly one argument"
+  echo "No arguments given! Give a directory as input"
   exit
 fi
 
 if [[ ! -d $1 ]]
 then 
-  echo "argument is not a directory"
+  echo "compdir.sh: cannot find directory $1"
   exit
 fi
-echo "$(dirname $1)"
+# echo "$(dirname $1)"
 
 DIR="$(cd "$(dirname $1)"; pwd)/$(basename "$1")"
-echo $DIR
-echo $PWD
+# echo $DIR
+# echo $PWD
 
 case $DIR in
   $PWD/$(basename "$1"))
   	# tom
   ;;
   *) 
-  	echo "elsewhere"
+  	echo "compdir.sh: you must specify a subdirectory"
   	exit
   ;;
 esac
@@ -34,14 +35,15 @@ esac
 if [[ ! -w $1 ]]
 then
   echo "can not write the compressed file to the current directory"
+  exit
 fi
 
 
 DIR_SIZE=$(du -cb $1 | grep 'total' | awk '{print $1}')
 LARGE_SIZE=$((512 * 1000000))
 # warn if dir > 512MB
-echo $DIR_SIZE
-echo $LARGE_SIZE
+# echo $DIR_SIZE
+# echo $LARGE_SIZE
 if [[ $DIR_SIZE -ge $LARGE_SIZE ]]
 then
 read -r -p "Are you sure? [y/N] " response
@@ -62,5 +64,5 @@ case "$response" in
 esac
 fi
 
-echo "compressing file"
+# echo "compressing file"
 compressfile $1
