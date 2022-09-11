@@ -5,14 +5,23 @@ MONTH=$1
 YEAR=$3
 LEAP=False
 
+if [[ $# != 3 ]]; then
+	echo "You must enter EXACTLY 3 arguments. Existing"
+	exit
+fi;
+
 checkDate () {
 	# day, month, max days in month
 	if [[ $1 -le $3 && $1 -ge 1 ]]
 	then
-		echo "EXISTS! $2 $DAY $YEAR is somebody's birthday!"
+		echo "EXISTS! $2 $DAY $YEAR is somebody's birthday."
 
-	else	
-		echo "BAD INPUT! $2 does not have $1 days"
+	else
+		if [[ $2 == "Feb" && $DAY -eq 29 ]]; then
+			echo "BAD INPUT: Feb $YEAR does not have 29 days: not a leap year."	
+		else
+			echo "BAD INPUT: $2 does not have $1 days."
+		fi;
 	fi
 }
 
@@ -64,12 +73,12 @@ case $MONTH in
 	checkDate "$DAY" "Sep" 30 
 	;;
 10 | [Oo]ct)
-	checkDate "$DAY" "Feb" 31
+	checkDate "$DAY" "Oct" 31
 	;;
 11 | [Nn]ov)
-	checkDate "$DAY" "Feb" 30
+	checkDate "$DAY" "Nov" 30
 	;;
 12 | [Dd]ec)
-	checkDate "$DAY" "Feb" 31
+	checkDate "$DAY" "Dec" 31
 	;;
 esac
