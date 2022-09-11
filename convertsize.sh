@@ -11,7 +11,8 @@ fillArray () {
   for i in {0..3}
   do
     sizes+=($start)
-    start=$(echo "$start" | awk '{printf "%.4f", $1/1024}')
+    # start=$(echo "$start" | awk '{printf "%.4f", $1/1024}')
+    start=$(echo "scale=4;$start/1024" | bc -l)
   done
 }
 
@@ -28,9 +29,13 @@ MB)
 GB)
   fillArray 3
   ;;
+*)
+  echo "Allowed units are B, KB, MB, and GB"
+  exit
+  ;;
 esac
 
-echo "Bytes = ${sizes[0]}"
-echo "Kilobytes = ${sizes[1]}"
-echo "Megabytes = ${sizes[2]}"
-echo "Gigabytes = ${sizes[3]}"
+echo "Bytes = ${sizes[0]}" | sed -r "s/\.(0+)$//g"
+echo "Kilobytes = ${sizes[1]}" | sed -r "s/\.(0+)$//g"
+echo "Megabytes = ${sizes[2]}" | sed -r "s/\.(0+)$//g"
+echo "Gigabytes = ${sizes[3]}" | sed -r "s/\.(0+)$//g"
