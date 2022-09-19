@@ -7,8 +7,17 @@ CFLAGS=-I$(IDIR) -Wall -g
 
 LIBS=-lpthread
 
-%.o: $(SDIR)/%.c
-	$(CC) -c -o $(ODIR)/$@ $< $(CFLAGS) 
+all: server client
+
+$(ODIR)/%.o:$(SDIR)/%.c
+	$(CC) -c -o $@ $< $(CFLAGS) 
 
 server: $(ODIR)/server.o
 	$(CC) -o server $< $(CFLAGS) $(LIBS)
+
+client: $(ODIR)/client.o
+	$(CC) -o client $< $(CFLAGS) $(LIBS)
+	
+clean:
+	rm server client
+	rm objects/*
