@@ -7,3 +7,7 @@ test*
 *.zip
 
 assignment2/mathserver/objects/
+
+assignment2/mathserver/server
+
+assignment2/mathserver/client
