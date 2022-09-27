@@ -1,16 +1,17 @@
 /***************************************************************************
  *
  * Sequential version of Matrix Inverse
- * An adapted version of the code by Håkan Grahn
+ * An adapted version of the code by Hï¿½kan Grahn
  ***************************************************************************/
 
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 #define MAX_SIZE 4096
-
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 typedef double matrix[MAX_SIZE][MAX_SIZE];
 
 int	N;		/* matrix size		*/
@@ -21,32 +22,61 @@ matrix	A;		/* matrix A		*/
 matrix I = {0.0};  /* The A inverse matrix, which will be initialized to the identity matrix */
 
 /* forward declarations */
-void find_inverse(void);
+void* find_inverse(void* params);
 void Init_Matrix(void);
 void Print_Matrix(matrix M, char name[]);
 void Init_Default(void);
 int Read_Options(int, char**);
 
-int
-main(int argc, char** argv)
+struct threadArgs
 {
+    int row_id;
+};
+
+int main(int argc, char** argv)
+{
+    pthread_mutex_init(&lock,NULL);
+    unsigned int numThreads = N;
+    pthread_t* threads = malloc(numThreads * sizeof(pthread_t));
+    struct threadArgs* args = malloc(numThreads * sizeof(struct threadArgs));
+
+
     printf("Matrix Inverse\n");
     int i, timestart, timeend, iter;
 
     Init_Default();		/* Init default values	*/
     Read_Options(argc, argv);	/* Read arguments	*/
     Init_Matrix();		/* Init the matrix	*/
-    find_inverse();
+    for (int id = 0; id < numThreads; id++)
+    {
+        args[id].row_id = id;
+        pthread_create(&(threads[id]),
+        NULL,
+        find_inverse,
+        (void*)&args[id]); // args to that function
+    }
+
+    for (int id = 0; id < numThreads; id++) {
+        pthread_join(threads[id], NULL);
+    }
+
+    free(args); // deallocate args vector
+    free(threads); // deallocate array
+    pthread_mutex_destroy(&lock);
+
+    // find_inverse();
 
     if (PRINT == 1)
     {
-        //Print_Matrix(A, "End: Input");
-        Print_Matrix(I, "Inversed");
+        Print_Matrix(A, "End: Input");
+        //Print_Matrix(I, "Inversed");
     }
 }
 
-void find_inverse()
+void* find_inverse(void* params)
 {
+    struct threadArgs *args = (struct threadArgs*) params;
+
     int row, col, p; // 'p' stands for pivot (numbered from 0 to N-1)
     double pivalue; // pivot value
 
@@ -60,27 +90,54 @@ void find_inverse()
         }
         assert(A[p][p] == 1.0);
 
-        double multiplier;
-        for (row = 0; row < N; row++) {
-            multiplier = A[row][p];
-            if (row != p) // Perform elimination on all except the current pivot row 
+        double multiplier = A[args->row_id][p];
+        if (args->row_id != p) // Perform elimination on all except the current pivot row
+        {
+            for (col = 0; col < N; col++)
             {
-                for (col = 0; col < N; col++)
-                {
-                    A[row][col] = A[row][col] - A[p][col] * multiplier; /* Elimination step on A */
-                    I[row][col] = I[row][col] - I[p][col] * multiplier; /* Elimination step on I */
-                }      
-                assert(A[row][p] == 0.0);
-            }
+                A[args->row_id][col] = A[args->row_id][col] - A[p][col] * multiplier; /* Elimination step on A */
+                I[args->row_id][col] = I[args->row_id][col] - I[p][col] * multiplier; /* Elimination step on I */
+            }      
+            assert(A[args->row_id][p] == 0.0);
         }
     }
 }
+
+// void find_inverse()
+// {
+//     int row, col, p; // 'p' stands for pivot (numbered from 0 to N-1)
+//     double pivalue; // pivot value
+
+//     /* Bringing the matrix A to the identity form */
+//     for (p = 0; p < N; p++) { /* Outer loop */
+//         pivalue = A[p][p];
+//         for (col = 0; col < N; col++)
+//         {
+//             A[p][col] = A[p][col] / pivalue; /* Division step on A */
+//             I[p][col] = I[p][col] / pivalue; /* Division step on I */
+//         }
+//         assert(A[p][p] == 1.0);
+
+//         double multiplier;
+//         for (row = 0; row < N; row++) {
+//             multiplier = A[row][p];
+//             if (row != p) // Perform elimination on all except the current pivot row 
+//             {
+//                 for (col = 0; col < N; col++)
+//                 {
+//                     A[row][col] = A[row][col] - A[p][col] * multiplier; /* Elimination step on A */
+//                     I[row][col] = I[row][col] - I[p][col] * multiplier; /* Elimination step on I */
+//                 }      
+//                 assert(A[row][p] == 0.0);
+//             }
+//         }
+//     }
+// }
 
 void
 Init_Matrix()
 {
     int row, col;
-
     // Set the diagonal elements of the inverse matrix to 1.0
     // So that you get an identity matrix to begin with
     for (row = 0; row < N; row++) {
