@@ -10,20 +10,20 @@ LIBS=-lpthread
 all: server client matinv kmeans
 
 $(ODIR)/%.o:$(SDIR)/%.c
-	$(CC) -c -o $@ $< $(CFLAGS) 
+	$(CC) $(CFLAGS) -c -o $@ $< 
 
 server: $(ODIR)/server.o
-	$(CC) -o server $< $(CFLAGS) $(LIBS)
+	$(CC) $(CFLAGS) $(LIBS) -o server $<
 
 client: $(ODIR)/client.o
-	$(CC) -o client $< $(CFLAGS) $(LIBS)
+	$(CC) $(CFLAGS) $(LIBS) -o client $<
 	
 matinv: $(ODIR)/matrix_inverse_par.o
-	$(CC) -o matinv $< $(CFLAGS) $(LIBS) 
+	$(CC) $(CFLAGS) $(LIBS) -o matinv $< 
 
 kmeans: $(ODIR)/kmeans_par.o
-	$(CC) -o kmeans $< $(CFLAGS) $(LIBS)
+	$(CC) $(CFLAGS) $(LIBS) -o kmeans $<
 
 clean:
-	rm server client matinv kmeans
-	rm objects/*
+	rm -f server client matinv kmeans
+	rm -f objects/*
