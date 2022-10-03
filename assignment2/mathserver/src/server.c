@@ -4,8 +4,22 @@
 #include <sys/socket.h> //for socket APIs
 #include <sys/types.h>
 #include <unistd.h>
+#include <string.h>
 
-int main() {
+int PORT = 9001;
+int DAEMON_FLAG = 0; //0 for false, 1 for true
+enum strats{Fork, MuxBasic, MuxScale};
+enum strats strat = Fork;
+
+void Read_Options(int argc, char **argv);
+
+int main(int argc, char **argv) {
+  Read_Options(argc,argv);
+
+  printf("port: %u\n", PORT);
+  printf("daemon: %u\n", DAEMON_FLAG);
+  printf("strat: %u\n", strat);
+  
   // create file descriptor
   int sfd = socket(AF_INET,SOCK_STREAM,0);
 
@@ -45,4 +59,57 @@ int main() {
   }
 
   printf("hello\n");  
+}
+
+// Credit to Håkan Grahn for the following function
+void Read_Options(int argc, char **argv)
+{
+    char *prog;
+
+    prog = *argv;
+    while (++argv, --argc > 0)
+        if (**argv == '-')
+            switch (*++*argv)
+            {
+            case 'h':
+                printf("\nUsage: server [-p port] listen to port number (default: 9001)\n");
+                printf("           [-d] daemon instead of normal program\n");
+                printf("           [-s fork|muxbasic|muxscale] specify strategi (default: fork)\n");
+                printf("           [-h] help text\n");
+                exit(0);
+                break;
+            case 'd':
+                DAEMON_FLAG = 1;
+                break;
+            case 'p':
+                --argc;
+                PORT = atoi(*++argv);
+                break;
+            case 's':
+                --argc;
+                char* in_strat = *++argv;
+                printf("%s\n", in_strat);
+                if (strcmp("fork", in_strat) == 0)
+                {
+                  strat = Fork;
+                }
+                else if (strcmp("muxbasic", in_strat) == 0)
+                {
+                  strat = MuxBasic;
+                }
+                else if (strcmp("muxscale", in_strat) == 0)
+                {
+                  strat = MuxScale;
+                }
+                else
+                {
+                  printf("Unknown strategy, defaulting to fork\n");
+                  strat = Fork;
+                }
+                break;
+            default:
+                printf("%s: ignored option: -%s\n", prog, *argv);
+                printf("HELP: try %s -h \n\n", prog);
+                break;
+            }
 }
