@@ -6,8 +6,8 @@
 #include <unistd.h>
 #include <string.h>
 
-int PORT = 9001;
-int DAEMON_FLAG = 0; //0 for false, 1 for true
+unsigned int PORT = 9001;
+unsigned int DAEMON_FLAG = 0; //0 for false, 1 for true
 enum strats{Fork, MuxBasic, MuxScale};
 enum strats strat = Fork;
 
@@ -96,10 +96,14 @@ void Read_Options(int argc, char **argv)
                 else if (strcmp("muxbasic", in_strat) == 0)
                 {
                   strat = MuxBasic;
+                  // dont start multiple processes
+                  // makes use of either select() or poll() system calls
                 }
                 else if (strcmp("muxscale", in_strat) == 0)
                 {
                   strat = MuxScale;
+                  // dont start multiple processes
+                  // use of either epoll(), or kqueue() to multiplex between a number of file descriptors
                 }
                 else
                 {
