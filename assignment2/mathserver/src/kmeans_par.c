@@ -37,7 +37,7 @@ void read_data() {
   }
 
   // Initialize points from the data file
-  float temp;
+  // float temp;
   for (int i = 0; i < N; i++) {
     fscanf(fp, "%f %f", &data[i].x, &data[i].y);
     data[i].cluster = -1; // Initialize the cluster number to -1
@@ -134,7 +134,7 @@ void update_cluster_centers() {
   int c;
   int count[MAX_CLUSTERS] = {
       0}; // Array to keep track of the number of points in each cluster
-  point temp[MAX_CLUSTERS] = {0.0};
+  point temp[MAX_CLUSTERS] = {{0.0}};
 
   for (int i = 0; i < N; i++) {
     c = data[i].cluster;
