@@ -20,6 +20,9 @@ char *Init;         /* matrix init type	*/
 int PRINT;          /* print switch		*/
 matrix A;           /* matrix A		*/
 matrix I = {{0.0}}; /* The A inverse matrix, which will be initialized to the identity matrix */
+int client_nr = 0;
+char *Output_file;
+char *Output;
 
 /* forward declarations */
 
@@ -30,6 +33,7 @@ void Init_Matrix(void);
 void Print_Matrix(matrix M, char name[]);
 void Init_Default(void);
 void Read_Options(int, char **);
+void Write_to_file(char* filename);
 
 struct threadArgs
 {
@@ -52,7 +56,7 @@ int main(int argc, char **argv)
 
     if (PRINT == 1)
     {
-        Print_Matrix(A, "End: Input");
+        //(Print_Matrix(A, "End: Input");
         Print_Matrix(I, "Inversed");
     }
 }
@@ -188,10 +192,14 @@ void Init_Matrix()
         }
     }
 
-    printf("\nsize      = %dx%d ", N, N);
-    printf("\nmaxnum    = %d \n", maxnum);
-    printf("Init	  = %s \n", Init);
-    printf("Initializing matrix...");
+    Output = "\nsize      = %dx%d ", N, N;
+    char temp[] = "\nmaxnum    = %d \n", maxnum;
+    strcat(Output, temp);
+
+    char temp1[] = "Init	  = %s \n", Init;
+    strcat(Output, temp);
+
+    strcat(Output, "Initializing matrix...");
 
     if (strcmp(Init, "rand") == 0)
     {
@@ -220,7 +228,7 @@ void Init_Matrix()
         }
     }
 
-    printf("done \n\n");
+    strcat(Output,"done \n\n");
     if (PRINT == 1)
     {
         // Print_Matrix(A, "Begin: Input");
@@ -228,18 +236,39 @@ void Init_Matrix()
     }
 }
 
+void Write_to_file(char* filename)
+{
+    FILE* file_ptr;
+    file_ptr = fopen(filename, "w");
+
+    if (file_ptr == NULL)
+    {
+        /* Unable to open file hence exit */
+        printf("\nUnable to open '%s' file.\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    fputs(Output, file_ptr);
+    fclose(file_ptr);
+}
+
 void Print_Matrix(matrix M, char name[])
 {
     int row, col;
 
-    printf("%s Matrix:\n", name);
+    char* temp2;
+    strcat(temp2, name);
+    strcat(temp2," Matrix:\n");
+    strcat(Output, temp2);
     for (row = 0; row < N; row++)
     {
-        for (col = 0; col < N; col++)
-            printf(" %5.2f", M[row][col]);
-        printf("\n");
+        for (col = 0; col < N; col++) {
+            char temp1[] = " %5.2f", M[row][col];
+            strcat(Output, temp1);
+        }
+        strcat(Output, "\n");
     }
-    printf("\n\n");
+    strcat(Output, "\n\n");
 }
 
 void Init_Default()
@@ -255,6 +284,7 @@ void Read_Options(int argc, char **argv)
     char *prog;
 
     prog = *argv;
+
     while (++argv, --argc > 0)
         if (**argv == '-')
             switch (*++*argv)
@@ -294,6 +324,11 @@ void Read_Options(int argc, char **argv)
             case 'P':
                 --argc;
                 PRINT = atoi(*++argv);
+                break;
+            case 'o':
+                --argc;
+                Output_file = *++argv;
+                Write_to_file(Output_file);
                 break;
             default:
                 printf("%s: ignored option: -%s\n", prog, *argv);
