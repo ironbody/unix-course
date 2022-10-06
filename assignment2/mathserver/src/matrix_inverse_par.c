@@ -23,7 +23,8 @@ matrix I = {{0.0}}; /* The A inverse matrix, which will be initialized to the id
 
 /* forward declarations */
 
-void *subtract_rows(void *params);
+// void *subtract_rows(void *params);
+void *matrix_inverse(void *params);
 void find_inverse();
 void Init_Matrix(void);
 void Print_Matrix(matrix M, char name[]);
@@ -32,7 +33,6 @@ void Read_Options(int, char **);
 
 struct threadArgs
 {
-    int row;
     int p;
 };
 
@@ -57,13 +57,88 @@ int main(int argc, char **argv)
     }
 }
 
+void *matrix_inverse(void *params)
+{   
+    struct threadArgs *args = (struct threadArgs *)params;
+    int row, col;
+    
+    double pivalue = A[args->p][args->p];
+    for (col = 0; col < N; col++)
+    {
+        A[args->p][col] = A[args->p][col] / pivalue; /* Division step on A */
+        I[args->p][col] = I[args->p][col] / pivalue; /* Division step on I */
+    }
+    assert(A[args->p][args->p] == 1.0);
+
+    double multiplier;
+    for (row = 0; row < N; row++) {
+        multiplier = A[row][args->p];
+        if (row != args->p) // Perform elimination on all except the current pivot row 
+        {
+            for (col = 0; col < N; col++)
+            {
+                A[row][col] = A[row][col] - A[args->p][col] * multiplier; /* Elimination step on A */
+                I[row][col] = I[row][col] - I[args->p][col] * multiplier; /* Elimination step on I */
+            }      
+            assert(A[row][args->p] == 0.0);
+        }
+    }
+}
+
+void find_inverse()
+{
+    pthread_t *threads = malloc(N * sizeof(pthread_t));
+    struct threadArgs *args = malloc(N * sizeof(struct threadArgs));
+
+    /* Bringing the matrix A to the identity form */
+    for (int p = 0; p < N; p++) { /* Outer loop */
+        args[p].p = p;
+        pthread_create(&(threads[p]),
+                        NULL,
+                        matrix_inverse,
+                        (void *)&args[p]); // args to that function
+    }            
+    
+    for (int id = 0; id < N; id++)
+    {
+        pthread_join(threads[id], NULL);
+    }
+
+    free(args);    // deallocate args vector
+    free(threads); // deallocate array
+}
+
+// void *subtract_rows(void *params)
+// {
+//     struct threadArgs *args = (struct threadArgs *)params;
+//     int row, p;
+//     row = args->row;
+//     p = args->p;
+
+//     double multiplier = A[row][p];
+//     if (row != p)
+//     {
+//         for (int col = 0; col < N; col++)
+//         {
+//             A[row][col] = A[row][col] - A[p][col] * multiplier; /* Elimination step on A */
+//             I[row][col] = I[row][col] - I[p][col] * multiplier; /* Elimination step on I */
+//         }
+//         assert(A[row][p] == 0.0);
+//     }
+//     pthread_exit(NULL);
+// }
+
 // void find_inverse()
 // {
 //     int row, col, p; // 'p' stands for pivot (numbered from 0 to N-1)
-//     double pivalue; // pivot value
+//     double pivalue;  // pivot value
+
+//     pthread_t *threads = malloc(N * sizeof(pthread_t));
+//     struct threadArgs *args = malloc(N * sizeof(struct threadArgs));
 
 //     /* Bringing the matrix A to the identity form */
-//     for (p = 0; p < N; p++) { /* Outer loop */
+//     for (p = 0; p < N; p++)
+//     { /* Outer loop */
 //         pivalue = A[p][p];
 //         for (col = 0; col < N; col++)
 //         {
@@ -72,81 +147,29 @@ int main(int argc, char **argv)
 //         }
 //         assert(A[p][p] == 1.0);
 
-//         double multiplier = A[args->row_id][p];
-//         if (args->row_id != p) // Perform elimination on all except the current pivot row
+//         // double multiplier;
+//         for (row = 0; row < N; row++)
 //         {
-//             for (col = 0; col < N; col++)
+//             if (row != p) // Perform elimination on all except the current pivot row
 //             {
-//                 A[args->row_id][col] = A[args->row_id][col] - A[p][col] * multiplier; /* Elimination step on A */
-//                 I[args->row_id][col] = I[args->row_id][col] - I[p][col] * multiplier; /* Elimination step on I */
+//                 args[row].row = row;
+//                 args[row].p = p;
+//                 pthread_create(&(threads[row]),
+//                                NULL,
+//                                subtract_rows,
+//                                (void *)&args[row]); // args to that function
 //             }
-//             assert(A[args->row_id][p] == 0.0);
+//         }
+
+//         for (int id = 0; id < N; id++)
+//         {
+//             pthread_join(threads[id], NULL);
 //         }
 //     }
+
+//     free(args);    // deallocate args vector
+//     free(threads); // deallocate array
 // }
-
-void *subtract_rows(void *params)
-{
-    struct threadArgs *args = (struct threadArgs *)params;
-    int row, p;
-    row = args->row;
-    p = args->p;
-
-    double multiplier = A[row][p];
-    if (row != p)
-    {
-        for (int col = 0; col < N; col++)
-        {
-            A[row][col] = A[row][col] - A[p][col] * multiplier; /* Elimination step on A */
-            I[row][col] = I[row][col] - I[p][col] * multiplier; /* Elimination step on I */
-        }
-        assert(A[row][p] == 0.0);
-    }
-    pthread_exit(NULL);
-}
-
-void find_inverse()
-{
-    int row, col, p; // 'p' stands for pivot (numbered from 0 to N-1)
-    double pivalue;  // pivot value
-
-    pthread_t *threads = malloc(N * sizeof(pthread_t));
-    struct threadArgs *args = malloc(N * sizeof(struct threadArgs));
-
-    /* Bringing the matrix A to the identity form */
-    for (p = 0; p < N; p++)
-    { /* Outer loop */
-        pivalue = A[p][p];
-        for (col = 0; col < N; col++)
-        {
-            A[p][col] = A[p][col] / pivalue; /* Division step on A */
-            I[p][col] = I[p][col] / pivalue; /* Division step on I */
-        }
-        assert(A[p][p] == 1.0);
-
-        // double multiplier;
-        for (row = 0; row < N; row++)
-        {
-            if (row != p) // Perform elimination on all except the current pivot row
-            {
-                args[row].row = row;
-                args[row].p = p;
-                pthread_create(&(threads[row]),
-                               NULL,
-                               subtract_rows,
-                               (void *)&args[row]); // args to that function
-            }
-        }
-
-        for (int id = 0; id < N; id++)
-        {
-            pthread_join(threads[id], NULL);
-        }
-    }
-
-    free(args);    // deallocate args vector
-    free(threads); // deallocate array
-}
 
 void Init_Matrix()
 {
