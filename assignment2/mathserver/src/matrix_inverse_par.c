@@ -62,6 +62,7 @@ void *matrix_inverse(void *params)
     struct threadArgs *args = (struct threadArgs *)params;
     int row, col;
     
+    pthread_mutex_lock(&lock);
     double pivalue = A[args->p][args->p];
     for (col = 0; col < N; col++)
     {
@@ -83,6 +84,8 @@ void *matrix_inverse(void *params)
             assert(A[row][args->p] == 0.0);
         }
     }
+    pthread_mutex_unlock(&lock);
+    pthread_exit(NULL);
 }
 
 void find_inverse()
