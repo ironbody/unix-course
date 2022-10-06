@@ -1,4 +1,5 @@
 #include <netinet/in.h> //structure for storing address information
+#include <signal.h> // SIGCHLD and SIG_IGN
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h> //for socket APIs
@@ -6,15 +7,25 @@
 #include <unistd.h>
 #include <string.h>
 
+#include <sys/resource.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+
+
 unsigned int PORT = 9001;
 unsigned int DAEMON_FLAG = 0; //0 for false, 1 for true
 enum strats{Fork, MuxBasic, MuxScale};
 enum strats strat = Fork;
 
 void Read_Options(int argc, char **argv);
+void daemonize(const char *cmd);
 
 int main(int argc, char **argv) {
   Read_Options(argc,argv);
+
+  if (DAEMON_FLAG == 1) {
+    daemonize("me");
+  }
 
   printf("port: %u\n", PORT);
   printf("daemon: %u\n", DAEMON_FLAG);
@@ -116,4 +127,70 @@ void Read_Options(int argc, char **argv)
                 printf("HELP: try %s -h \n\n", prog);
                 break;
             }
+}
+
+// code provided in lecture 10 in our course
+void daemonize(const char *cmd)
+{
+    int                 i, fd0, fd1, fd2;
+    pid_t               pid;
+    struct rlimit       rl;
+    struct sigaction    sa;
+    
+    /* STEP 1: Clear file creation mask */
+    umask(0);
+    
+    /* Get maximum number of file descriptors */
+    if (getrlimit(RLIMIT_NOFILE, &rl) < 0) {
+        perror(cmd);
+        exit(1);
+    }
+
+    /* STEP 2a: Fork a child process */
+    if ((pid = fork()) < 0) {
+        perror(cmd);
+        exit(1);
+    }
+    else if (pid != 0) { /* STEP 2b: Exit the parent process */
+        exit(0);
+    }
+    /* STEP 3: Become a session leader to lose controlling TTY 
+     * The child process executes this! */
+    setsid(); 
+    
+    /* Ensure future opens won't allocate controlling TTYs */
+    sa.sa_handler = SIG_IGN;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    if (sigaction(SIGHUP, &sa, NULL) < 0) {
+        perror("Can't ignore SIGHUP");
+        exit(1);
+    }
+    if ((pid = fork()) < 0){
+        perror("Can't fork");
+        exit(1);
+    }
+    else if (pid != 0) /* parent */
+        exit(0);
+    
+    /*
+     *      * Change the current working directory to the root so
+     *           * we won't prevent file systems from being unmounted.
+     *                */
+    if (chdir("/") < 0){
+        perror("Can't change to /");
+        exit(1);
+    }
+    
+    /* Close all open file descriptors */
+    printf("limit: %ld\n", rl.rlim_max);
+    if (rl.rlim_max == RLIM_INFINITY)
+        rl.rlim_max = 1024;
+    for (i = 0; i < rl.rlim_max; i++)
+        close(i);
+    
+    /* Attach file descriptors 0, 1, and 2 to /dev/null */
+    fd0 = open("/dev/null", O_RDWR);
+    fd1 = dup(0);
+    fd2 = dup(0);
 }
