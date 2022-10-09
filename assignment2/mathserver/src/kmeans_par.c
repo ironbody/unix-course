@@ -26,6 +26,7 @@ struct thread_args
 int N; // number of entries in the data
 int k; // number of centroids
 char *filename;
+char *outputfile;
 point data[MAX_POINTS];      // Data coordinates
 point cluster[MAX_CLUSTERS]; // The coordinates of each cluster center (also
                              // called centroid)
@@ -199,7 +200,8 @@ void kmeans()
 
 void write_results()
 {
-  FILE *fp = fopen("kmeans-results.txt", "w");
+
+  FILE *fp = fopen(outputfile, "w");
   if (fp == NULL)
   {
     perror("Cannot open the file");
@@ -245,6 +247,10 @@ void Read_Options(int argc, char **argv)
         }
         k = num;
         break;
+      case 'o':
+        --argc;
+        outputfile = *++argv;
+        break;
       default:
         printf("%s: ignored option: -%s\n", prog, *argv);
         printf("HELP: try %s -u \n\n", prog);
@@ -256,6 +262,7 @@ int main(int argc, char **argv)
 {
   k = 9;
   filename = "kmeans-data.txt";
+  outputfile = "kmeans-results.txt";
 
   Read_Options(argc, argv);
   read_data();
