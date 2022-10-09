@@ -1,24 +1,18 @@
 .DS_Store
 
 .vscode/
-datecheck22.sh
 .git-backup
-
+datecheck22.sh
 test*
-
 *.zip
 
-assignment2/mathserver/objects/*
-
-assignment2/mathserver/server
-
-assignment2/mathserver/client
-
-assignment2/mathserver/matinv
-
-assignment2/mathserver/
-
-assignment2/mathserver/kmeans
-assignment2/mathserver/kmeans-results.txt
 assignment2/matinv
 assignment2/matrix_result.txt
+
+assignment2/mathserver/objects/*
+assignment2/mathserver/server
+assignment2/mathserver/client
+assignment2/mathserver/matinv
+assignment2/mathserver/kmeans
+assignment2/mathserver/kmeans-results.txt
+assignment2/mathserver/results.txt
