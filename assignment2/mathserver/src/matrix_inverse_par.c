@@ -59,7 +59,8 @@ int main(int argc, char **argv)
     {
         //(Print_Matrix(A, "End: Input");
         FILE *fptr;
-        char file[] = "test1.txt"; 
+
+        char* file = Output_file;
         fptr = fopen(file, "w");
 
         if (fptr == NULL) {
@@ -69,6 +70,7 @@ int main(int argc, char **argv)
 
         write_matrix_to_file(I, "Inversed", fptr);
         fclose(fptr);
+
     }
 }
 
@@ -207,6 +209,7 @@ void Init_Default()
     Init = "fast";
     maxnum = 15.0;
     PRINT = 1;
+    Output_file = "matrix_result.txt";
 }
 
 void Read_Options(int argc, char **argv)
@@ -254,6 +257,10 @@ void Read_Options(int argc, char **argv)
             case 'P':
                 --argc;
                 PRINT = atoi(*++argv);
+                break;
+            case 'o':
+                --argc;
+                Output_file = *++argv;
                 break;
             default:
                 printf("%s: ignored option: -%s\n", prog, *argv);
