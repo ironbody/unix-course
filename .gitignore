@@ -2,6 +2,8 @@
 
 .vscode/
 datecheck22.sh
+.git-backup
+
 test*
 
 *.zip
@@ -13,6 +15,10 @@ assignment2/mathserver/server
 assignment2/mathserver/client
 
 assignment2/mathserver/matinv
+
+assignment2/mathserver/
+
+assignment2/mathserver/matrix_result.txt
 
 assignment2/mathserver/kmeans
 assignment2/mathserver/kmeans-results.txt
