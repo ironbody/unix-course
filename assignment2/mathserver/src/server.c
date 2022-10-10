@@ -23,7 +23,7 @@ enum strats strat = Fork;
 
 void Read_Options(int argc, char **argv);
 void daemonize(const char *cmd);
-void handle_conn(int sock);
+void handle_conn(int sock, unsigned long long id);
 void extract_args(char *args_str, int res_size, char **res);
 int count_spaces(char *args_str);
 
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
   // define server address and port
   struct sockaddr_in serverAddr;
   serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(9001);
+  serverAddr.sin_port = htons(PORT);
   serverAddr.sin_addr.s_addr = INADDR_ANY;
 
   bind(sfd, &serverAddr, sizeof(serverAddr));
@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 
   printf("Listening..\n");
 
-  for (;;)
+  for (unsigned long long i = 0;; i++)
   {
 
     int conn = accept(sfd, NULL, NULL);
@@ -71,15 +71,17 @@ int main(int argc, char **argv)
 
     if (pid == 0)
     {
-      handle_conn(conn);
+      handle_conn(conn,i);
     }
   }
 
   printf("hello\n");
 }
 
-void handle_conn(int sock)
+void handle_conn(int sock, unsigned long long id)
 {
+
+  printf("Handled connection #%llu",id);
 
   struct command cmd;
 
