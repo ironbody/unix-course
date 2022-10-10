@@ -30,7 +30,7 @@ int count_spaces(char *args_str);
 int main(int argc, char **argv)
 {
   signal(SIGCHLD, SIG_IGN);
-  
+
   Read_Options(argc, argv);
 
   if (DAEMON_FLAG == 1)
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
   bind(sfd, &serverAddr, sizeof(serverAddr));
   listen(sfd, 1);
 
-  printf("Listening..\n");
+  // printf("Listening..\n");
 
   for (unsigned long long i = 0;; i++)
   {
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 
     if (pid == 0)
     {
-      handle_conn(conn,i);
+      handle_conn(conn, i);
     }
   }
 
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 void handle_conn(int sock, unsigned long long id)
 {
 
-  printf("Handled connection #%llu",id);
+  printf("Handled connection #%llu", id);
 
   struct command cmd;
 
@@ -94,13 +94,15 @@ void handle_conn(int sock, unsigned long long id)
   // TODO exec command
 
   char *path;
-  if (args[0] == "matinvpar") {
+  if (args[0] == "matinvpar")
+  {
     path = "./matinv";
   }
-  else if (args[0] == "kmeanspar") 
+  else if (args[0] == "kmeanspar")
+  {
     path = "./kmeans";
   }
-  int execv(path, args);
+  execv(path, args);
 
   // TOOD get file
 
@@ -120,13 +122,16 @@ void handle_conn(int sock, unsigned long long id)
   exit(0);
 }
 
-int count_spaces(char *args_str) 
+
+int count_spaces(char *args_str)
 {
   int space_nr = 0;
-  for (int i = 0; i < strlen(args_str); i++) {
-      if (args_str[i] == ' ') {
-          space_nr += 1;
-      }
+  for (int i = 0; i < strlen(args_str); i++)
+  {
+    if (args_str[i] == ' ')
+    {
+      space_nr += 1;
+    }
   }
   return space_nr;
 }
@@ -134,13 +139,14 @@ int count_spaces(char *args_str)
 void extract_args(char *args_str, int res_size, char **res)
 {
   char *args[res_size];
-  args[0] = strtok(res, " ");
-  for (int i = 1; i < res_size-1; i++){
-      args[i] = strtok(NULL, " ");
+  args[0] = strtok(args_str, " ");
+  for (int i = 1; i < res_size - 1; i++)
+  {
+    args[i] = strtok(NULL, " ");
   }
-  args[res_size-1] = NULL;
+  args[res_size - 1] = NULL;
   // for (int i = 0; i < (res_size+1); i++)
-  //     printf("%s\n", args[i]);   
+  //     printf("%s\n", args[i]);
 }
 
 // Credit to Håkan Grahn for the following function
