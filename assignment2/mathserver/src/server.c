@@ -23,7 +23,7 @@ enum strats strat = Fork;
 
 void Read_Options(int argc, char **argv);
 void daemonize(const char *cmd);
-void handle_conn(int sock);
+void handle_conn(int sock, unsigned long long id);
 
 int main(int argc, char **argv)
 {
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 
   printf("Listening..\n");
 
-  for (;;)
+  for (unsigned long long i = 0;; i++)
   {
 
     int conn = accept(sfd, NULL, NULL);
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 
     if (pid == 0)
     {
-      handle_conn(conn);
+      handle_conn(conn,i);
     }
 
     signal(SIGCHLD, SIG_IGN);
@@ -76,8 +76,10 @@ int main(int argc, char **argv)
   printf("hello\n");
 }
 
-void handle_conn(int sock)
+void handle_conn(int sock, unsigned long long id)
 {
+
+  printf("Handled connection #%llu",id);
 
   struct command cmd;
 
