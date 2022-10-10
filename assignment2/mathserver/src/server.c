@@ -86,10 +86,19 @@ void handle_conn(int sock)
   recv(sock, &cmd, sizeof(cmd), 0);
   printf("Recieved: %s\n", cmd.buf);
 
-  int num_args = count_spaces(cmd.buf) + 1;
+  int num_args = count_spaces(cmd.buf) + 2;
   char *args[num_args];
   extract_args(cmd.buf, num_args, args);
   // TODO exec command
+
+  char *path;
+  if (args[0] == "matinvpar") {
+    path = "./matinv";
+  }
+  else if (args[0] == "kmeanspar") 
+    path = "./kmeans";
+  }
+  int execv(path, args);
 
   // TOOD get file
 
@@ -124,9 +133,10 @@ void extract_args(char *args_str, int res_size, char **res)
 {
   char *args[res_size];
   args[0] = strtok(res, " ");
-  for (int i = 1; i < res_size; i++){
+  for (int i = 1; i < res_size-1; i++){
       args[i] = strtok(NULL, " ");
   }
+  args[res_size-1] = NULL;
   // for (int i = 0; i < (res_size+1); i++)
   //     printf("%s\n", args[i]);   
 }
