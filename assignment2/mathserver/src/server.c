@@ -44,7 +44,7 @@ int main(int argc, char **argv)
   // define server address and port
   struct sockaddr_in serverAddr;
   serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(9001);
+  serverAddr.sin_port = htons(PORT);
   serverAddr.sin_addr.s_addr = INADDR_ANY;
 
   bind(sfd, &serverAddr, sizeof(serverAddr));
