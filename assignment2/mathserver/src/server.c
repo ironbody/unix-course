@@ -24,9 +24,13 @@ enum strats strat = Fork;
 void Read_Options(int argc, char **argv);
 void daemonize(const char *cmd);
 void handle_conn(int sock, unsigned long long id);
+void extract_args(char *args_str, int res_size, char **res);
+int count_spaces(char *args_str);
 
 int main(int argc, char **argv)
 {
+  signal(SIGCHLD, SIG_IGN);
+  
   Read_Options(argc, argv);
 
   if (DAEMON_FLAG == 1)
@@ -69,8 +73,6 @@ int main(int argc, char **argv)
     {
       handle_conn(conn,i);
     }
-
-    signal(SIGCHLD, SIG_IGN);
   }
 
   printf("hello\n");
@@ -86,6 +88,9 @@ void handle_conn(int sock, unsigned long long id)
   recv(sock, &cmd, sizeof(cmd), 0);
   printf("Recieved: %s\n", cmd.buf);
 
+  int num_args = count_spaces(cmd.buf) + 1;
+  char *args[num_args];
+  extract_args(cmd.buf, num_args, args);
   // TODO exec command
 
   // TOOD get file
@@ -104,6 +109,28 @@ void handle_conn(int sock, unsigned long long id)
   }
 
   exit(0);
+}
+
+int count_spaces(char *args_str) 
+{
+  int space_nr = 0;
+  for (int i = 0; i < strlen(args_str); i++) {
+      if (args_str[i] == ' ') {
+          space_nr += 1;
+      }
+  }
+  return space_nr;
+}
+
+void extract_args(char *args_str, int res_size, char **res)
+{
+  char *args[res_size];
+  args[0] = strtok(res, " ");
+  for (int i = 1; i < res_size; i++){
+      args[i] = strtok(NULL, " ");
+  }
+  // for (int i = 0; i < (res_size+1); i++)
+  //     printf("%s\n", args[i]);   
 }
 
 // Credit to Håkan Grahn for the following function
