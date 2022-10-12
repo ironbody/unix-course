@@ -51,7 +51,7 @@ int main(int argc, char **argv)
   serverAddr.sin_port = htons(PORT);
   serverAddr.sin_addr.s_addr = INADDR_ANY;
 
-  bind(sfd, &serverAddr, sizeof(serverAddr));
+  bind(sfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr));
   listen(sfd, 1);
 
   // printf("Listening..\n");
@@ -93,35 +93,31 @@ void handle_conn(int sock, unsigned long long id)
   extract_args(cmd.buf, num_args, args);
   // TODO exec command
 
-  char *path;
-  if (args[0] == "matinvpar")
-  {
-    path = "./matinv";
-  }
-  else if (args[0] == "kmeanspar")
-  {
-    path = "./kmeans";
-  }
-  execv(path, args);
+  // char *path;
+  // if (args[0] == "matinvpar")
+  // {
+  //   path = "./matinv";
+  // }
+  // else if (args[0] == "kmeanspar")
+  // {
+  //   path = "./kmeans";
+  // }
+  // execv(path, args);
 
   // TOOD get file
 
   // TODO read and send file data in loop?
 
   char msg[] = "hejhejhej";
-  long size = (long)sizeof(msg) * 500;
+  long size = (long)sizeof(msg);
 
   send(sock, &size, sizeof(size), 0);
 
-  for (size_t i = 0; i < 500; i++)
-  {
-    int size = send(sock, &msg, sizeof(msg), 0);
-    printf("sent: %d\n", size);
-  }
+  int bytes = send(sock, &msg, sizeof(msg), 0);
+  printf("sent: %d\n", bytes);
 
   exit(0);
 }
-
 
 int count_spaces(char *args_str)
 {
