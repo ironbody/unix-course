@@ -71,7 +71,6 @@ int main(int argc, char **argv)
       printf("Could not create new process\n");
       exit(-1);
     }
-
     if (pid == 0)
     {
       handle_conn(conn, i);
@@ -100,7 +99,7 @@ void handle_conn(int sock, unsigned long long id)
   extract_args(cmd.buf, in_arg_count, args);
 
   char *out_file = NULL;
-  asprintf(&out_file, "client-%llu.txt", id);
+  asprintf(&out_file, "./computed_results/client-%llu.txt", id);
   args[total_arg_count - 3] = "-o";
   args[total_arg_count - 2] = out_file;
   args[total_arg_count - 1] = NULL;
@@ -111,16 +110,36 @@ void handle_conn(int sock, unsigned long long id)
   }
 
   char *path;
-  if (args[0] == "matinvpar")
+  // if (args[0] == "matinvpar")
+  if (strcmp(args[0], "matinvpar") == 0)
   {
     path = "./matinv";
   }
-  else if (args[0] == "kmeanspar")
+  // else if (args[0] == "kmeanspar")
+  else if (strcmp(args[0], "kmeanspar") == 0)
   {
     path = "./kmeans";
   }
+  else
+  {
+    printf("bad input\n");
+    exit(0);
+  }
+  
 
-  // execv(path, args);
+  pid_t pid = fork();
+  if (pid == -1)
+  {
+    printf("Could not create new process\n");
+    exit(-1);
+  }
+  if (pid == 0)
+  {
+    execv(path, args);
+  }
+
+  int status;
+  waitpid(pid,&status, 0);
 
   // TOOD get file
 
