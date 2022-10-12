@@ -57,7 +57,7 @@ int main(int argc, char **argv)
   bind(sfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr));
   listen(sfd, 1);
 
-  // printf("Listening..\n");
+  printf("Listening..\n");
 
   for (unsigned long long i = 0;; i++)
   {
@@ -94,12 +94,21 @@ void handle_conn(int sock, unsigned long long id)
   // num of args is num of spaces +1,
   // +3 because inserting "-o filename" is +2 args,
   // and space for a NULL arg at the end is +1
-  int num_args = count_spaces(cmd.buf) + 1;
-  char *args[num_args + 4];
-  extract_args(cmd.buf, num_args, args);
+  int in_arg_count = count_spaces(cmd.buf) + 1;
+  int total_arg_count = in_arg_count + 3;
+  char *args[in_arg_count];
+  extract_args(cmd.buf, in_arg_count, args);
 
-  args[num_args - 1] = NULL;
-  // TODO exec command
+  char *out_file = NULL;
+  asprintf(&out_file, "client-%llu.txt", id);
+  args[total_arg_count - 3] = "-o";
+  args[total_arg_count - 2] = out_file;
+  args[total_arg_count - 1] = NULL;
+
+  for (size_t i = 0; i < total_arg_count; i++)
+  {
+    printf("%s\n", args[i]);
+  }
 
   char *path;
   if (args[0] == "matinvpar")
@@ -110,7 +119,8 @@ void handle_conn(int sock, unsigned long long id)
   {
     path = "./kmeans";
   }
-  execv(path, args);
+
+  // execv(path, args);
 
   // TOOD get file
 
@@ -123,6 +133,8 @@ void handle_conn(int sock, unsigned long long id)
 
   int bytes = send(sock, &msg, sizeof(msg), 0);
   printf("sent: %d\n", bytes);
+
+  free(out_file);
 
   exit(0);
 }
@@ -142,11 +154,10 @@ int count_spaces(char *args_str)
 
 void extract_args(char *args_str, int res_size, char **res)
 {
-  char *args[res_size];
-  args[0] = strtok(args_str, " ");
-  for (int i = 1; i < res_size - 1; i++)
+  res[0] = strtok(args_str, " ");
+  for (int i = 1; i < res_size; i++)
   {
-    args[i] = strtok(NULL, " ");
+    res[i] = strtok(NULL, " ");
   }
 
   // for (int i = 0; i < (res_size+1); i++)
@@ -285,7 +296,7 @@ void daemonize(const char *cmd)
 void create_results_dir()
 {
   struct stat st = {0};
-  if (stat("./computed_results",&st) == -1) // if the directory does not exist
+  if (stat("./computed_results", &st) == -1) // if the directory does not exist
   {
     if (mkdir("./computed_results", 0777) != 0) // if the directory could not be created
     {
