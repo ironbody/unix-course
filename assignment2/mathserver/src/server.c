@@ -26,6 +26,7 @@ void daemonize(const char *cmd);
 void handle_conn(int sock, unsigned long long id);
 void extract_args(char *args_str, int res_size, char **res);
 int count_spaces(char *args_str);
+void create_results_dir();
 
 int main(int argc, char **argv)
 {
@@ -33,14 +34,16 @@ int main(int argc, char **argv)
 
   Read_Options(argc, argv);
 
+  create_results_dir();
+
   if (DAEMON_FLAG == 1)
   {
     daemonize("me");
   }
 
-  printf("port: %u\n", PORT);
-  printf("daemon: %u\n", DAEMON_FLAG);
-  printf("strat: %u\n", strat);
+  // printf("port: %u\n", PORT);
+  // printf("daemon: %u\n", DAEMON_FLAG);
+  // printf("strat: %u\n", strat);
 
   // create file descriptor
   int sfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -75,7 +78,7 @@ int main(int argc, char **argv)
     }
   }
 
-  printf("hello\n");
+  // printf("hello\n");
 }
 
 void handle_conn(int sock, unsigned long long id)
@@ -88,21 +91,26 @@ void handle_conn(int sock, unsigned long long id)
   recv(sock, &cmd, sizeof(cmd), 0);
   printf("Recieved: %s\n", cmd.buf);
 
-  int num_args = count_spaces(cmd.buf) + 2;
-  char *args[num_args];
+  // num of args is num of spaces +1,
+  // +3 because inserting "-o filename" is +2 args,
+  // and space for a NULL arg at the end is +1
+  int num_args = count_spaces(cmd.buf) + 1;
+  char *args[num_args + 4];
   extract_args(cmd.buf, num_args, args);
+
+  args[num_args - 1] = NULL;
   // TODO exec command
 
-  // char *path;
-  // if (args[0] == "matinvpar")
-  // {
-  //   path = "./matinv";
-  // }
-  // else if (args[0] == "kmeanspar")
-  // {
-  //   path = "./kmeans";
-  // }
-  // execv(path, args);
+  char *path;
+  if (args[0] == "matinvpar")
+  {
+    path = "./matinv";
+  }
+  else if (args[0] == "kmeanspar")
+  {
+    path = "./kmeans";
+  }
+  execv(path, args);
 
   // TOOD get file
 
@@ -140,7 +148,7 @@ void extract_args(char *args_str, int res_size, char **res)
   {
     args[i] = strtok(NULL, " ");
   }
-  args[res_size - 1] = NULL;
+
   // for (int i = 0; i < (res_size+1); i++)
   //     printf("%s\n", args[i]);
 }
@@ -272,4 +280,16 @@ void daemonize(const char *cmd)
   fd0 = open("/dev/null", O_RDWR);
   fd1 = dup(0);
   fd2 = dup(0);
+}
+
+void create_results_dir()
+{
+  struct stat st = {0};
+  if (stat("./computed_results",&st) == -1) // if the directory does not exist
+  {
+    if (mkdir("./computed_results", 0777) != 0) // if the directory could not be created
+    {
+      perror("Could not create results directory\n");
+    }
+  }
 }
