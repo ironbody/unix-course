@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     if (pid == -1)
     {
       printf("Could not create new process\n");
-      exit(-1);
+      exit(EXIT_FAILURE);
     }
     if (pid == 0)
     {
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 void handle_conn(int sock, unsigned long long id)
 {
 
-  printf("Handled connection #%llu", id);
+  printf("Handled connection #%llu\n", id);
 
   struct command cmd;
 
@@ -115,12 +115,10 @@ void handle_conn(int sock, unsigned long long id)
   }
 
   char *path;
-  // if (args[0] == "matinvpar")
   if (strcmp(args[0], "matinvpar") == 0)
   {
     path = "./matinv";
   }
-  // else if (args[0] == "kmeanspar")
   else if (strcmp(args[0], "kmeanspar") == 0)
   {
     path = "./kmeans";
@@ -128,14 +126,14 @@ void handle_conn(int sock, unsigned long long id)
   else
   {
     printf("bad input\n");
-    exit(0);
+    exit(EXIT_FAILURE); // loop again
   }
   
   pid_t pid = fork();
   if (pid == -1)
   {
     printf("Could not create new process\n");
-    exit(-1);
+    exit(EXIT_FAILURE);
   }
   if (pid == 0)
   {
@@ -147,19 +145,36 @@ void handle_conn(int sock, unsigned long long id)
 
   // TOOD get file
 
-  // TODO read and send file data in loop?
+  FILE *fd = fopen(out_file, "rwx");
+  if (fd == NULL)
+  {
+    perror("Could not open result file");
+    exit(EXIT_FAILURE);
+  }
 
-  char msg[] = "hejhejhej";
-  long size = (long)sizeof(msg);
+  struct stat file_stat;
+  if (fstat(fileno(fd), &file_stat) < 0)
+  {
+    perror("Could not get file stats");
+    exit(EXIT_FAILURE);
+  }
+  printf("File size: %lld\n", file_stat.st_size);
 
-  send(sock, &size, sizeof(size), 0);
+  // send filesize
+  send(sock, &file_stat.st_size, sizeof(file_stat.st_size), 0);
 
-  int bytes = send(sock, &msg, sizeof(msg), 0);
-  printf("sent: %d\n", bytes);
-
+  // send file
+  off_t offset = NULL;
+  int bytes = 0;
+  if (sendfile(fd, sock, &offset, file_stat.st_size) == -1)
+  {
+    perror("could not send file");
+    exit(EXIT_FAILURE);
+  }
+ 
   free(out_file);
-
-  exit(0);
+  close(sock);
+  exit(EXIT_SUCCESS);
 }
 
 int count_spaces(char *args_str)
@@ -202,7 +217,7 @@ void Read_Options(int argc, char **argv)
         printf("           [-d] daemon instead of normal program\n");
         printf("           [-s fork|muxbasic|muxscale] specify strategi (default: fork)\n");
         printf("           [-h] help text\n");
-        exit(0);
+        exit(EXIT_SUCCESS);
         break;
       case 'd':
         DAEMON_FLAG = 1;
@@ -247,7 +262,8 @@ void Read_Options(int argc, char **argv)
 // code provided in lecture 10 in our course
 void daemonize(const char *cmd)
 {
-  int i, fd0, fd1, fd2;
+  // int i, fd0, fd1, fd2;
+  int i;
   pid_t pid;
   struct rlimit rl;
   struct sigaction sa;
@@ -304,16 +320,16 @@ void daemonize(const char *cmd)
   }
 
   /* Close all open file descriptors */
-  printf("limit: %ld\n", rl.rlim_max);
+  printf("limit: %llu\n", rl.rlim_max);
   if (rl.rlim_max == RLIM_INFINITY)
     rl.rlim_max = 1024;
   for (i = 0; i < rl.rlim_max; i++)
     close(i);
 
   /* Attach file descriptors 0, 1, and 2 to /dev/null */
-  fd0 = open("/dev/null", O_RDWR);
-  fd1 = dup(0);
-  fd2 = dup(0);
+  // fd0 = open("/dev/null", O_RDWR);
+  // fd1 = dup(0);
+  // fd2 = dup(0);
 }
 
 void create_results_dir()
