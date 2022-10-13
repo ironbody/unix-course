@@ -87,7 +87,12 @@ void handle_conn(int sock, unsigned long long id)
 
   struct command cmd;
 
-  recv(sock, &cmd, sizeof(cmd), 0);
+  int bytes_rec = recv(sock, &cmd, sizeof(cmd), 0);
+  if (bytes_rec == 0) {
+    printf("Connection broken!\n");
+    exit(EXIT_SUCCESS);
+  }
+
   printf("Recieved: %s\n", cmd.buf);
 
   // num of args is num of spaces +1,
@@ -126,7 +131,6 @@ void handle_conn(int sock, unsigned long long id)
     exit(0);
   }
   
-
   pid_t pid = fork();
   if (pid == -1)
   {
@@ -139,7 +143,7 @@ void handle_conn(int sock, unsigned long long id)
   }
 
   int status;
-  waitpid(pid,&status, 0);
+  waitpid(pid, &status, 0);
 
   // TOOD get file
 
