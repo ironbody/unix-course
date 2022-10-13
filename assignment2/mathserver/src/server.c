@@ -156,18 +156,20 @@ void handle_conn(int sock, unsigned long long id)
   }
   printf("File size: %lld\n", file_stat.st_size);
 
-  // TODO read and send file data in loop?
+  // send filesize
+  send(sock, &file_stat.st_size, sizeof(file_stat.st_size), 0);
 
-  char msg[] = "hejhejhej";
-  long size = (long)sizeof(msg);
-
-  send(sock, &size, sizeof(size), 0);
-
-  int bytes = send(sock, &msg, sizeof(msg), 0);
-  printf("sent: %d\n", bytes);
-
+  // send file
+  off_t offset = NULL;
+  int bytes = 0;
+  if (sendfile(fd, sock, &offset, file_stat.st_size) == -1)
+  {
+    perror("could not send file");
+    exit(EXIT_FAILURE);
+  }
+ 
   free(out_file);
-
+  close(sock);
   exit(EXIT_SUCCESS);
 }
 
