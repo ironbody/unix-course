@@ -4,9 +4,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define MAX_POINTS 4096
 #define MAX_CLUSTERS 32
+#define NUM_THREADS 4
 
 typedef struct point
 {
@@ -18,6 +20,8 @@ typedef struct point
 struct thread_args
 {
   int idx;
+  int from;
+  int to;
   int old_cluster;
   int new_cluster;
   bool something_changed;
@@ -116,24 +120,29 @@ void *find_point_cluster(void *params)
 
 bool assign_clusters_to_points()
 {
-  struct thread_args *targs = malloc(N * sizeof(struct thread_args));
-  pthread_t *children = malloc(N * sizeof(pthread_t));
+  struct thread_args *targs = malloc(NUM_THREADS * sizeof(struct thread_args));
+  pthread_t *children = malloc(NUM_THREADS * sizeof(pthread_t));
 
   bool something_changed = false;
 
-  // create threads for calculating the new cluster for each point
-  for (int i = 0; i < N; i++)
-  { // For each data point
-    // struct thread_args* arg = malloc(sizeof(struct thread_args));
-    targs[i].idx = i;
-    targs[i].old_cluster = data[i].cluster;
-    targs[i].new_cluster = -1;
+  for (size_t i = 0; i < NUM_THREADS; i++)
+  {
+    targs[i].from = ceil(i * (N / NUM_THREADS));
+    targs[i].to = ceil((i + 1) * (N / NUM_THREADS));
+    // targs[i].old_cluster = data[i].cluster;
+    // targs[i].new_cluster = -1;
     targs[i].something_changed = false;
 
     pthread_create(&(children[i]),
                    NULL,
                    find_point_cluster,
                    (void *)&(targs[i]));
+  }
+
+  // create threads for calculating the new cluster for each point
+  for (int i = 0; i < N; i++)
+  { // For each data point
+    // struct thread_args* arg = malloc(sizeof(struct thread_args));
   }
 
   // join threads
