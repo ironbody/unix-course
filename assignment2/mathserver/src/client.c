@@ -37,6 +37,15 @@ int main(int argc, char **argv)
   struct command cmd;
   fgets(cmd.buf, sizeof(cmd.buf), stdin);
 
+  for (size_t i = 0; i < sizeof(cmd.buf); i++)
+  {
+    if (cmd.buf[i] == '\n')
+    {
+      cmd.buf[i] = '\0';
+      break;
+    }
+  }
+
   send(cd, &cmd, sizeof(cmd), 0);
 
   struct result res;
