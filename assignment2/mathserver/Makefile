@@ -3,7 +3,7 @@ ODIR=./objects
 SDIR=./src
 
 CC=gcc
-CFLAGS=-I$(IDIR) -Wall -g
+CFLAGS=-I$(IDIR) -Wall -g -std=gnu99
 
 LIBS=-lpthread
 

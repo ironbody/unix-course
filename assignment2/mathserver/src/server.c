@@ -1,3 +1,4 @@
+#define _GNU_SOURCE 
 #include <netinet/in.h> //structure for storing address information
 #include <signal.h>     // SIGCHLD and SIG_IGN
 #include <stdio.h>
@@ -9,7 +10,11 @@
 #include <sys/resource.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <sys/sendfile.h>
 #include "command.h"
+
+
 
 unsigned int PORT = 9001;
 unsigned int DAEMON_FLAG = 0; // 0 for false, 1 for true
@@ -99,6 +104,7 @@ void handle_conn(int sock, unsigned long long id)
   // +3 because inserting "-o filename" is +2 args,
   // and space for a NULL arg at the end is +1
   int in_arg_count = count_spaces(cmd.buf) + 1;
+  printf("In_arg_count: %d\n", in_arg_count);
   int total_arg_count = in_arg_count + 3;
   char *args[in_arg_count];
   extract_args(cmd.buf, in_arg_count, args);
@@ -137,11 +143,14 @@ void handle_conn(int sock, unsigned long long id)
   }
   if (pid == 0)
   {
+     printf("before exec\n");
     execv(path, args);
+    printf("After execn");
   }
 
   int status;
   waitpid(pid, &status, 0);
+  printf("After waitpid\n");
 
   // TOOD get file
 
@@ -158,15 +167,14 @@ void handle_conn(int sock, unsigned long long id)
     perror("Could not get file stats");
     exit(EXIT_FAILURE);
   }
-  printf("File size: %lld\n", file_stat.st_size);
+  printf("File size: %ld\n", file_stat.st_size);
 
   // send filesize
   send(sock, &file_stat.st_size, sizeof(file_stat.st_size), 0);
 
   // send file
-  off_t offset = NULL;
-  int bytes = 0;
-  if (sendfile(fd, sock, &offset, file_stat.st_size) == -1)
+  off_t* offset = NULL;
+  if (sendfile(fileno(fd), sock, offset, file_stat.st_size) == -1)
   {
     perror("could not send file");
     exit(EXIT_FAILURE);
@@ -320,7 +328,7 @@ void daemonize(const char *cmd)
   }
 
   /* Close all open file descriptors */
-  printf("limit: %llu\n", rl.rlim_max);
+  printf("limit: %lu\n", rl.rlim_max);
   if (rl.rlim_max == RLIM_INFINITY)
     rl.rlim_max = 1024;
   for (i = 0; i < rl.rlim_max; i++)
