@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 
   printf("Please write your command: ");
   struct command cmd;
-  gets(cmd.buf);
+  fgets(cmd.buf, sizeof(cmd.buf), stdin);
 
   for (size_t i = 0; i < sizeof(cmd.buf); i++)
   {
