@@ -33,43 +33,57 @@ int main(int argc, char **argv)
 
   printf("Established connection with the server!\n\n");
 
-  printf("Please write your command: ");
-  struct command cmd;
-  fgets(cmd.buf, sizeof(cmd.buf), stdin);
-
-  for (size_t i = 0; i < sizeof(cmd.buf); i++)
+  for (;;)
   {
-    if (cmd.buf[i] == '\n')
+    printf("Please write your command: ");
+    struct command cmd;
+    fgets(cmd.buf, sizeof(cmd.buf), stdin);
+
+    for (size_t i = 0; i < sizeof(cmd.buf); i++)
     {
-      cmd.buf[i] = '\0';
-      break;
+      if (cmd.buf[i] == '\n')
+      {
+        cmd.buf[i] = '\0';
+        break;
+      }
     }
+
+    send(cd, &cmd, sizeof(cmd), 0);
+
+    struct result res;
+
+    // recieving the size of the data
+    int bytes = recv(cd, &res.size, sizeof(res.size), 0);
+    if (bytes == 0)
+    {
+      printf("Connection was closed\n");
+      exit(EXIT_SUCCESS);
+    }
+    
+
+    printf("Received a message from server! %lld bytes\n\n", res.size);
+
+    FILE *fp = fopen("results.txt", "w");
+
+    printf("Message: \n");
+    long long recieved_data = 0;
+    do
+    {
+      int msize = recv(cd, &res.buf, sizeof(res.buf), 0);
+      if (msize == 0)
+      {
+        printf("Connection closed\n");
+        exit(EXIT_SUCCESS);
+      }
+      recieved_data += msize;
+      fprintf(fp, "%s", res.buf);
+
+      printf("%s\n", res.buf);
+      printf("%lld\n", recieved_data);
+    } while (recieved_data < res.size);
+
+    fclose(fp);
   }
-
-  send(cd, &cmd, sizeof(cmd), 0);
-
-  struct result res;
-
-  // recieving the size of the data
-  recv(cd, &res.size, sizeof(res.size), 0);
-
-  printf("Received a message from server! %ld bytes\n\n", res.size);
-
-  FILE *fp = fopen("results.txt", "w");
-
-  printf("Message: \n");
-  long recieved_data = 0;
-  do
-  {
-    int msize = recv(cd, &res.buf, sizeof(res.buf), 0);
-    recieved_data += msize;
-    printf("%s\n", res.buf);
-    printf("%ld\n", recieved_data);
-    fprintf(fp, "%s", res.buf);
-  } while (recieved_data < res.size);
-
-  printf("\n");
-
   // printf("Hello\n");
 }
 
