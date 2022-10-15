@@ -7,7 +7,7 @@ CFLAGS=-I$(IDIR) -Wall -g -std=gnu99
 
 LIBS=-lpthread
 
-all: server client matinv kmeans
+all: server client matinvpar kmeanspar
 
 $(ODIR)/%.o:$(SDIR)/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -18,14 +18,14 @@ server: $(ODIR)/server.o
 client: $(ODIR)/client.o
 	$(CC) $(CFLAGS) $(LIBS) -o client $<
 	
-matinv: $(ODIR)/matrix_inverse_par.o
-	$(CC) $(CFLAGS) $(LIBS) -o matinv $< -lm
+matinvpar: $(ODIR)/matrix_inverse_par.o
+	$(CC) $(CFLAGS) $(LIBS) -o matinvpar $< -lm
 
-kmeans: $(ODIR)/kmeans_par.o
-	$(CC) $(CFLAGS) $(LIBS) -o kmeans $< -lm
+kmeanspar: $(ODIR)/kmeans_par.o
+	$(CC) $(CFLAGS) $(LIBS) -o kmeanspar $< -lm
 
 clean:
-	rm -f server client matinv kmeans
+	rm -f server client matinvpar kmeanspar
 	rm -f objects/*
 	rm -f kmeans-res*
 	rm -f results.txt
