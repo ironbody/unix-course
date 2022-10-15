@@ -29,3 +29,4 @@ clean:
 	rm -f objects/*
 	rm -f kmeans-res*
 	rm -f results.txt
+	rm -f matrix_result.txt
