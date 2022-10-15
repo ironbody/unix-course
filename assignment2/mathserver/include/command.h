@@ -12,7 +12,7 @@ struct command
 // size: size of the entire file
 // buf: buffer where chunks of the file is placed
 struct result {
-    long size;
+    long long size;
     char buf[1024];
 };
 
