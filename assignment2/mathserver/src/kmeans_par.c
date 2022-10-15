@@ -136,8 +136,12 @@ bool assign_clusters_to_points()
   // create threads for calculating the new cluster for each point
   for (size_t i = 0; i < NUM_THREADS; i++)
   {
-    targs[i].from = (int) ceil(i * (N / NUM_THREADS));
-    targs[i].to = (int) ceil((i + 1) * (N / NUM_THREADS));
+    int from = (int) ceil(i * ((double)N / NUM_THREADS));
+    int to = (int) ceil((i + 1) * ((double)N / NUM_THREADS));
+
+    // printf("from: %d, to: %d\n", from, to);
+    targs[i].from = from;
+    targs[i].to = to;
     targs[i].something_changed = false;
 
     pthread_create(&(children[i]),
@@ -176,6 +180,7 @@ void update_cluster_centers()
 
   for (int i = 0; i < N; i++)
   {
+    // printf("%d\n",i);
     c = data[i].cluster;
     count[c]++;
     temp[c].x += data[i].x;
@@ -219,7 +224,7 @@ void write_results()
       fprintf(fp, "%.2f %.2f %d\n", data[i].x, data[i].y, data[i].cluster);
     }
   }
-  printf("Wrote the results to %s!\n", filename);
+  printf("Wrote the results to %s!\n", outputfile);
 }
 
 // following function is adapted from Håkan Grahn
