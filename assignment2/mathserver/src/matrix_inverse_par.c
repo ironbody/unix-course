@@ -108,7 +108,7 @@ void find_inverse()
     pthread_t *threads = malloc(NUM_THREADS * sizeof(pthread_t));
     struct threadArgs *args = malloc(NUM_THREADS * sizeof(struct threadArgs));
 
-    int row, col;
+    int col;
 
     /* Bringing the matrix A to the identity form */
     for (int p = 0; p < N; p++)
@@ -121,8 +121,6 @@ void find_inverse()
             I[p][col] = I[p][col] / pivalue; /* Division step on I */
         }
         assert(A[p][p] == 1.0);
-
-        double multiplier;
 
         for (size_t i = 0; i < NUM_THREADS; i++)
         {
