@@ -4,7 +4,10 @@
 #include <stdlib.h>
 #include <sys/socket.h> //for socket APIs
 #include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include "command.h"
+
 
 int PORT = 9001;
 in_addr_t IP = INADDR_ANY;
@@ -63,11 +66,12 @@ int main(int argc, char **argv)
 
     printf("Received a message from server! %lld bytes\n\n", res.size);
 
-    FILE *fp = fopen("results.txt", "w");
+    int fp = open("results.txt", O_RDWR | O_CREAT, S_IRWXU);
 
     printf("Message: \n");
+
     long long recieved_data = 0;
-    do
+    while (recieved_data < res.size)
     {
       int msize = recv(cd, &res.buf, sizeof(res.buf), 0);
       if (msize == 0)
@@ -76,13 +80,13 @@ int main(int argc, char **argv)
         exit(EXIT_SUCCESS);
       }
       recieved_data += msize;
-      fprintf(fp, "%s", res.buf);
+      write(fp, res.buf, msize);
 
       printf("%s\n", res.buf);
       printf("%lld\n", recieved_data);
-    } while (recieved_data < res.size);
+    } 
 
-    fclose(fp);
+    close(fp);
   }
   // printf("Hello\n");
 }
