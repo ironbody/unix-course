@@ -19,11 +19,8 @@ typedef struct point
 
 struct thread_args
 {
-  int idx;
   int from;
   int to;
-  int old_cluster;
-  int new_cluster;
   bool something_changed;
 };
 
@@ -110,11 +107,22 @@ void *find_point_cluster(void *params)
 {
   struct thread_args *args = (struct thread_args *)params;
 
-  args->new_cluster = get_closest_centroid(args->idx, k);
-  if (args->old_cluster != args->new_cluster)
+  int from = args->from;
+  int to = args->to;
+
+  int new_cluster, old_cluster;
+
+  for (int i = from; i < to; i++)
   {
-    args->something_changed = true;
+    old_cluster = data[i].cluster;
+    new_cluster = get_closest_centroid(i, k);
+    data[i].cluster = new_cluster;
+    if (old_cluster != new_cluster)
+    {
+      args->something_changed = true;
+    }
   }
+
   pthread_exit(NULL);
 }
 
@@ -125,12 +133,11 @@ bool assign_clusters_to_points()
 
   bool something_changed = false;
 
+  // create threads for calculating the new cluster for each point
   for (size_t i = 0; i < NUM_THREADS; i++)
   {
-    targs[i].from = ceil(i * (N / NUM_THREADS));
-    targs[i].to = ceil((i + 1) * (N / NUM_THREADS));
-    // targs[i].old_cluster = data[i].cluster;
-    // targs[i].new_cluster = -1;
+    targs[i].from = (int) ceil(i * (N / NUM_THREADS));
+    targs[i].to = (int) ceil((i + 1) * (N / NUM_THREADS));
     targs[i].something_changed = false;
 
     pthread_create(&(children[i]),
@@ -139,26 +146,15 @@ bool assign_clusters_to_points()
                    (void *)&(targs[i]));
   }
 
-  // create threads for calculating the new cluster for each point
-  for (int i = 0; i < N; i++)
-  { // For each data point
-    // struct thread_args* arg = malloc(sizeof(struct thread_args));
-  }
-
   // join threads
-  for (int i = 0; i < N; i++)
+  for (int i = 0; i < NUM_THREADS; i++)
   {
     pthread_join(children[i], NULL);
   }
 
   // update data and check if something changed
-  for (int i = 0; i < N; i++)
+  for (int i = 0; i < NUM_THREADS; i++)
   {
-    int idx, cluster;
-    idx = targs[i].idx;
-    cluster = targs[i].new_cluster;
-    data[idx].cluster = cluster;
-
     if (targs[i].something_changed)
     {
       something_changed = true;
@@ -223,7 +219,7 @@ void write_results()
       fprintf(fp, "%.2f %.2f %d\n", data[i].x, data[i].y, data[i].cluster);
     }
   }
-  printf("Wrote the results to a file!\n");
+  printf("Wrote the results to %s!\n", filename);
 }
 
 // following function is adapted from Håkan Grahn
