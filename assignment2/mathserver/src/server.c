@@ -63,7 +63,7 @@ int main(int argc, char **argv)
   bind(sfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr));
   listen(sfd, 1);
 
-  printf("Listening for ..\n");
+  printf("Listening for clients...\n");
 
   for (unsigned long long i = 1;; i++)
   {
