@@ -74,9 +74,9 @@ int main(int argc, char **argv)
 
     printf("Received a message from server! %lld bytes\n\n", res.size);
 
-    // printf("filename: %s\n", res.file_name);
-    // FILE* fp = fopen(res.file_name, "w");
-    FILE* fp = fopen("result.txt", "w");
+    printf("filename: %s\n", res.file_name);
+    FILE* fp = fopen(res.file_name, "w");
+    // FILE* fp = fopen("result.txt", "w");
 
     printf("Message: \n");
 

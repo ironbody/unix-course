@@ -31,7 +31,7 @@ void extract_args(char *args_str, int res_size, char **res);
 int count_spaces(char *args_str);
 void create_results_dir();
 void send_nothing(int sock);
-char *generate_filename(char *prog, unsigned long long id);
+char *generate_filepath(char *prog, unsigned long long id);
 
 int main(int argc, char **argv)
 {
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 
   printf("Listening..\n");
 
-  for (unsigned long long i = 0;; i++)
+  for (unsigned long long i = 1;; i++)
   {
 
     int conn = accept(sfd, NULL, NULL);
@@ -118,18 +118,18 @@ void handle_conn(int sock, unsigned long long id)
     char *args[total_arg_count];
     extract_args(cmd.buf, in_arg_count, args);
 
-    char *out_filename = NULL;
-    char out_filepath[80] = {0};
-    asprintf(&out_filename, "./computed_results/client-%llu.txt", id);
+    char *out_filepath = NULL;
 
     char *path;
     if (strcmp(args[0], "matinvpar") == 0)
     {
       path = "./matinvpar";
+      out_filepath = generate_filepath("matinv", id);
     }
     else if (strcmp(args[0], "kmeanspar") == 0)
     {
       path = "./kmeanspar";
+      out_filepath = generate_filepath("kmeans", id);
     }
     else
     {
@@ -139,7 +139,7 @@ void handle_conn(int sock, unsigned long long id)
     }
 
     args[total_arg_count - 3] = "-o";
-    args[total_arg_count - 2] = out_filename;
+    args[total_arg_count - 2] = out_filepath;
     args[total_arg_count - 1] = NULL;
 
     for (size_t i = 0; i < total_arg_count - 1; i++)
@@ -164,7 +164,7 @@ void handle_conn(int sock, unsigned long long id)
     waitpid(pid, &status, 0);
     printf("After waitpid\n");
 
-    FILE *fd = fopen(out_filename, "rwx");
+    FILE *fd = fopen(out_filepath, "rwx");
     if (fd == NULL)
     {
       perror("Could not open result file");
@@ -186,8 +186,10 @@ void handle_conn(int sock, unsigned long long id)
 
     struct file_data_result res;
 
+    char *out_filename = out_filepath + strlen("./computed_results/");
+
     res.size = htonll(file_stat.st_size);
-    strncpy(res.file_name, out_filename, sizeof(res.file_name));
+    strncpy(res.file_name, out_filename, strlen(out_filename) + 1);
     printf("File size: %lld\n", file_stat.st_size);
 
     // send filedata
@@ -233,7 +235,7 @@ void handle_conn(int sock, unsigned long long id)
       }
     }
 
-    free(out_filename);
+    free(out_filepath);
     fclose(fd);
   }
 
@@ -264,6 +266,22 @@ void extract_args(char *args_str, int res_size, char **res)
 
   // for (int i = 0; i < (res_size+1); i++)
   //     printf("%s\n", args[i]);
+}
+
+char *generate_filepath(char *prog, unsigned long long id)
+{
+  char *test_path = malloc(100 * sizeof(char));
+  int i = 1;
+
+  snprintf(test_path, 100, "./computed_results/%s_client%lld_soln%d.txt", prog, id, i);
+
+  while (access(test_path, F_OK) == 0)
+  {
+    i++;
+    snprintf(test_path, 100, "./computed_results/%s_client%lld_soln%d.txt", prog, id, i);
+  }
+
+  return test_path;
 }
 
 // Credit to Håkan Grahn for the following function
