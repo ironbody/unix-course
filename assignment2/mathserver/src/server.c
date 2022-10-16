@@ -89,32 +89,7 @@ void handle_conn(int sock, unsigned long long id)
 
   printf("Handled connection #%llu\n", id);
 
-  struct command cmd;
-
-  int bytes_rec = recv(sock, &cmd, sizeof(cmd), 0);
-  if (bytes_rec == 0) {
-    printf("Connection broken!\n");
-    exit(EXIT_SUCCESS);
-  }
-
-  printf("Recieved: %s\n", cmd.buf);
-
-  // num of args is num of spaces +1,
-  // +3 because inserting "-o filename" is +2 args,
-  // and space for a NULL arg at the end is +1
-  int in_arg_count = count_spaces(cmd.buf) + 1;
-  printf("In_arg_count: %d\n", in_arg_count);
-  int total_arg_count = in_arg_count + 3;
-  char *args[in_arg_count];
-  extract_args(cmd.buf, in_arg_count, args);
-
-  char *out_file = NULL;
-  asprintf(&out_file, "./computed_results/client-%llu.txt", id);
-  args[total_arg_count - 3] = "-o";
-  args[total_arg_count - 2] = out_file;
-  args[total_arg_count - 1] = NULL;
-
-  for (size_t i = 0; i < total_arg_count-1; i++)
+  for (;;)
   {
     struct command cmd;
 
