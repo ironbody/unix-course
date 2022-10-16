@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <arpa/inet.h>
 // #include <sys/sendfile.h>
 #include "command.h"
 
@@ -188,9 +189,9 @@ void handle_conn(int sock, unsigned long long id)
 
     char *out_filename = out_filepath + strlen("./computed_results/");
 
-    res.size = htonll(file_stat.st_size);
+    res.size = htonl(file_stat.st_size);
     strncpy(res.file_name, out_filename, strlen(out_filename) + 1);
-    printf("File size: %lld\n", file_stat.st_size);
+    printf("File size: %ld\n", file_stat.st_size);
 
     // send filedata
     send(sock, &res, sizeof(res), 0);
@@ -402,7 +403,7 @@ void daemonize(const char *cmd)
   }
 
   /* Close all open file descriptors */
-  printf("limit: %llu\n", rl.rlim_max);
+  printf("limit: %lu\n", rl.rlim_max);
   if (rl.rlim_max == RLIM_INFINITY)
     rl.rlim_max = 1024;
   for (i = 0; i < rl.rlim_max; i++)

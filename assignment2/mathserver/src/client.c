@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <arpa/inet.h>
+
 #include "command.h"
 
 
@@ -69,7 +71,7 @@ int main(int argc, char **argv)
     }
     
 
-    res.size = ntohll(res.size);
+    res.size = ntohl(res.size);
     
 
     printf("Received a message from server! %lld bytes\n\n", res.size);
