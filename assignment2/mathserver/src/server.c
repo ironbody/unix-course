@@ -347,7 +347,7 @@ void Read_Options(int argc, char **argv)
 // code provided in lecture 10 in our course
 void daemonize(const char *cmd)
 {
-  // int i, fd0, fd1, fd2;
+  int fd0, fd1, fd2;
   int i;
   pid_t pid;
   struct rlimit rl;
@@ -398,11 +398,13 @@ void daemonize(const char *cmd)
    *      * Change the current working directory to the root so
    *           * we won't prevent file systems from being unmounted.
    *                */
-  if (chdir("/") < 0)
-  {
-    perror("Can't change to /");
-    exit(1);
-  }
+  // we stay in our current directory so that we have access to kmeanspar and matinvpar
+  // along with permissions to create the 
+  // if (chdir("/") < 0)
+  // {
+  //   perror("Can't change to /");
+  //   exit(1);
+  // }
 
   /* Close all open file descriptors */
   printf("limit: %lu\n", rl.rlim_max);
@@ -412,9 +414,11 @@ void daemonize(const char *cmd)
     close(i);
 
   /* Attach file descriptors 0, 1, and 2 to /dev/null */
-  // fd0 = open("/dev/null", O_RDWR);
-  // fd1 = dup(0);
-  // fd2 = dup(0);
+  fd0 = open("/dev/null", O_RDWR);
+  fd1 = dup(0);
+  fd2 = dup(0);
+
+  signal(SIGCHLD, SIG_IGN);
 }
 
 void create_results_dir()
