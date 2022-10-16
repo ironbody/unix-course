@@ -11,9 +11,9 @@ struct command
 // resulting filedata the client recieves
 // size: size of the entire file
 // buf: buffer where chunks of the file is placed
-struct result {
+struct file_data_result {
     long long size;
-    char buf[1024];
+    char file_name[200];
 };
 
 

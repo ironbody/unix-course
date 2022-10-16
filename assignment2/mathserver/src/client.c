@@ -53,38 +53,55 @@ int main(int argc, char **argv)
 
     send(cd, &cmd, sizeof(cmd), 0);
 
-    struct result res;
+    struct file_data_result res;
 
     // recieving the size of the data
-    int bytes = recv(cd, &res.size, sizeof(res.size), 0);
+    int bytes = recv(cd, &res, sizeof(res), 0);
     if (bytes == 0)
     {
       printf("Connection was closed\n");
       exit(EXIT_SUCCESS);
     }
+    else if (bytes == -1)
+    {
+      perror("Could not recieve file data");
+      exit(EXIT_FAILURE);
+    }
+    
+
+    res.size = ntohll(res.size);
     
 
     printf("Received a message from server! %lld bytes\n\n", res.size);
 
-    // int fp = open("results.txt", O_RDWR | O_CREAT, S_IRWXU);
-    FILE* fp = fopen("results.txt", "w");
+    // printf("filename: %s\n", res.file_name);
+    // FILE* fp = fopen(res.file_name, "w");
+    FILE* fp = fopen("result.txt", "w");
 
     printf("Message: \n");
+
+    char FILE_BUF[1024];
 
     long long recieved_data = 0;
     while (recieved_data < res.size)
     {
-      int msize = recv(cd, &res.buf, sizeof(res.buf), 0);
+      int msize = recv(cd, &FILE_BUF, sizeof(FILE_BUF), 0);
       if (msize == 0)
       {
         printf("Connection closed\n");
         exit(EXIT_SUCCESS);
       }
+      else if (msize == -1)
+      {
+          perror("Could not recieve file contents");
+          exit(EXIT_FAILURE);
+      }
+      
       recieved_data += msize;
       // write(fp, res.buf, msize);
-      fwrite(res.buf, sizeof(char), msize, fp);
+      fwrite(FILE_BUF, sizeof(char), msize, fp);
 
-      printf("%s\n", res.buf);
+      printf("%s\n", FILE_BUF);
       printf("%lld\n", recieved_data);
     } 
 

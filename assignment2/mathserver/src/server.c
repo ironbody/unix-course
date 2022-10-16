@@ -31,6 +31,7 @@ void extract_args(char *args_str, int res_size, char **res);
 int count_spaces(char *args_str);
 void create_results_dir();
 void send_nothing(int sock);
+char *generate_filename(char *prog, unsigned long long id);
 
 int main(int argc, char **argv)
 {
@@ -99,7 +100,7 @@ void handle_conn(int sock, unsigned long long id)
       perror("could not recieve data");
       exit(EXIT_FAILURE);
     }
-    
+
     if (bytes_rec == 0)
     {
       printf("Connection closed!\n");
@@ -117,16 +118,9 @@ void handle_conn(int sock, unsigned long long id)
     char *args[total_arg_count];
     extract_args(cmd.buf, in_arg_count, args);
 
-    char *out_file = NULL;
-    asprintf(&out_file, "./computed_results/client-%llu.txt", id);
-    args[total_arg_count - 3] = "-o";
-    args[total_arg_count - 2] = out_file;
-    args[total_arg_count - 1] = NULL;
-
-    for (size_t i = 0; i < total_arg_count - 1; i++)
-    {
-      printf("%s\n", args[i]);
-    }
+    char *out_filename = NULL;
+    char out_filepath[80] = {0};
+    asprintf(&out_filename, "./computed_results/client-%llu.txt", id);
 
     char *path;
     if (strcmp(args[0], "matinvpar") == 0)
@@ -142,6 +136,15 @@ void handle_conn(int sock, unsigned long long id)
       printf("bad input\n");
       send_nothing(sock);
       continue; // loop again
+    }
+
+    args[total_arg_count - 3] = "-o";
+    args[total_arg_count - 2] = out_filename;
+    args[total_arg_count - 1] = NULL;
+
+    for (size_t i = 0; i < total_arg_count - 1; i++)
+    {
+      printf("%s\n", args[i]);
     }
 
     pid_t pid = fork();
@@ -161,7 +164,7 @@ void handle_conn(int sock, unsigned long long id)
     waitpid(pid, &status, 0);
     printf("After waitpid\n");
 
-    FILE *fd = fopen(out_file, "rwx");
+    FILE *fd = fopen(out_filename, "rwx");
     if (fd == NULL)
     {
       perror("Could not open result file");
@@ -181,18 +184,22 @@ void handle_conn(int sock, unsigned long long id)
       exit(EXIT_FAILURE);
     }
 
-    struct result res;
+    struct file_data_result res;
 
-    res.size = file_stat.st_size;
+    res.size = htonll(file_stat.st_size);
+    strncpy(res.file_name, out_filename, sizeof(res.file_name));
     printf("File size: %lld\n", file_stat.st_size);
-    // send filesize
-    send(sock, &res.size, sizeof(file_stat.st_size), 0);
+
+    // send filedata
+    send(sock, &res, sizeof(res), 0);
 
     // credit to brian campbell on stackoverflow for the following loop
     // https://stackoverflow.com/a/2014066
+
+    char FILE_BUF[1024];
     for (;;)
     {
-      int bytes_read = read(fileno(fd), &res.buf, sizeof(res.buf));
+      int bytes_read = read(fileno(fd), &FILE_BUF, sizeof(FILE_BUF));
       // printf("bytes_read: %d\n", bytes_read);
       if (bytes_read == 0)
       {
@@ -207,7 +214,7 @@ void handle_conn(int sock, unsigned long long id)
       }
 
       // we use a loop because all of the data may not be written in a single write call.
-      char *p = res.buf;
+      char *p = FILE_BUF;
       while (bytes_read > 0)
       {
         // write() is equivalent to send() with a flag of 0
@@ -226,10 +233,10 @@ void handle_conn(int sock, unsigned long long id)
       }
     }
 
-    free(out_file);
+    free(out_filename);
     fclose(fd);
   }
-  
+
   close(sock);
   exit(EXIT_SUCCESS);
 }
