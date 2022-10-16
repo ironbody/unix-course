@@ -66,7 +66,8 @@ int main(int argc, char **argv)
 
     printf("Received a message from server! %lld bytes\n\n", res.size);
 
-    int fp = open("results.txt", O_RDWR | O_CREAT, S_IRWXU);
+    // int fp = open("results.txt", O_RDWR | O_CREAT, S_IRWXU);
+    FILE* fp = fopen("results.txt", "w");
 
     printf("Message: \n");
 
@@ -80,13 +81,15 @@ int main(int argc, char **argv)
         exit(EXIT_SUCCESS);
       }
       recieved_data += msize;
-      write(fp, res.buf, msize);
+      // write(fp, res.buf, msize);
+      fwrite(res.buf, sizeof(char), msize, fp);
 
       printf("%s\n", res.buf);
       printf("%lld\n", recieved_data);
     } 
 
-    close(fp);
+    fclose(fp);
+    // close(fp);
   }
   // printf("Hello\n");
 }
