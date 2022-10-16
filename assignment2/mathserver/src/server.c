@@ -123,7 +123,7 @@ void handle_conn(int sock, unsigned long long id)
     args[total_arg_count - 2] = out_file;
     args[total_arg_count - 1] = NULL;
 
-    for (size_t i = 0; i < total_arg_count; i++)
+    for (size_t i = 0; i < total_arg_count - 1; i++)
     {
       printf("%s\n", args[i]);
     }
