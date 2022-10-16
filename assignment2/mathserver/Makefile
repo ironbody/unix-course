@@ -25,9 +25,10 @@ kmeanspar: $(ODIR)/kmeans_par.o
 	$(CC) $(CFLAGS) -o kmeanspar $< $(LIBS)
 
 clean:
-	rm -f server client matinvpar kmeanspar
+	rm -f server client matinv kmeans matinvpar kmeanspar
 	rm -f objects/*
 	rm -f computed_results/*
 	rm -f kmeans-client*
+	rm -f matinv_c*
 	rm -f results.txt
 	rm -f matrix_result.txt
