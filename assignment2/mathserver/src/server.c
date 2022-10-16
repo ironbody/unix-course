@@ -1,4 +1,4 @@
-#define _GNU_SOURCE 
+#define _GNU_SOURCE
 #include <netinet/in.h> //structure for storing address information
 #include <signal.h>     // SIGCHLD and SIG_IGN
 #include <stdio.h>
@@ -11,10 +11,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <sys/sendfile.h>
+// #include <sys/sendfile.h>
 #include "command.h"
-
-
 
 unsigned int PORT = 9001;
 unsigned int DAEMON_FLAG = 0; // 0 for false, 1 for true
@@ -32,6 +30,7 @@ void handle_conn(int sock, unsigned long long id);
 void extract_args(char *args_str, int res_size, char **res);
 int count_spaces(char *args_str);
 void create_results_dir();
+void send_nothing(int sock);
 
 int main(int argc, char **argv)
 {
@@ -117,70 +116,139 @@ void handle_conn(int sock, unsigned long long id)
 
   for (size_t i = 0; i < total_arg_count-1; i++)
   {
-    printf("%s\n", args[i]);
-  }
+    struct command cmd;
 
-  char *path;
-  if (strcmp(args[0], "matinvpar") == 0)
-  {
-    path = "./matinv";
-  }
-  else if (strcmp(args[0], "kmeanspar") == 0)
-  {
-    path = "./kmeans";
-  }
-  else
-  {
-    printf("bad input\n");
-    exit(EXIT_FAILURE); // loop again
+    int bytes_rec = recv(sock, &cmd, sizeof(cmd), 0);
+    if (bytes_rec == 0)
+    {
+      printf("Connection closed!\n");
+      break;
+    }
+
+    printf("Recieved: %s\n", cmd.buf);
+
+    // num of args is num of spaces +1,
+    // +3 because inserting "-o filename" is +2 args,
+    // and space for a NULL arg at the end is +1
+    int in_arg_count = count_spaces(cmd.buf) + 1;
+    printf("In_arg_count: %d\n", in_arg_count);
+    int total_arg_count = in_arg_count + 3;
+    char *args[in_arg_count];
+    extract_args(cmd.buf, in_arg_count, args);
+
+    char *out_file = NULL;
+    asprintf(&out_file, "./computed_results/client-%llu.txt", id);
+    args[total_arg_count - 3] = "-o";
+    args[total_arg_count - 2] = out_file;
+    args[total_arg_count - 1] = NULL;
+
+    for (size_t i = 0; i < total_arg_count; i++)
+    {
+      printf("%s\n", args[i]);
+    }
+
+    char *path;
+    if (strcmp(args[0], "matinvpar") == 0)
+    {
+      path = "./matinvpar";
+    }
+    else if (strcmp(args[0], "kmeanspar") == 0)
+    {
+      path = "./kmeanspar";
+    }
+    else
+    {
+      printf("bad input\n");
+      send_nothing(sock);
+      continue; // loop again
+    }
+
+    pid_t pid = fork();
+    if (pid == -1)
+    {
+      perror("Could not create new process");
+      send_nothing(sock);
+      close(sock);
+      exit(EXIT_FAILURE);
+    }
+    if (pid == 0)
+    {
+      execv(path, args);
+    }
+
+    int status;
+    waitpid(pid, &status, 0);
+    printf("After waitpid\n");
+
+    FILE *fd = fopen(out_file, "rwx");
+    if (fd == NULL)
+    {
+      perror("Could not open result file");
+      send_nothing(sock);
+      close(sock);
+      fclose(fd);
+      exit(EXIT_FAILURE);
+    }
+
+    struct stat file_stat;
+    if (fstat(fileno(fd), &file_stat) < 0)
+    {
+      perror("Could not get file stats");
+      send_nothing(sock);
+      close(sock);
+      fclose(fd);
+      exit(EXIT_FAILURE);
+    }
+
+    struct result res;
+
+    res.size = file_stat.st_size;
+    printf("File size: %lld\n", file_stat.st_size);
+    // send filesize
+    send(sock, &res.size, sizeof(file_stat.st_size), 0);
+
+    // credit to brian campbell on stackoverflow for the following loop
+    // https://stackoverflow.com/a/2014066
+    for (;;)
+    {
+      int bytes_read = read(fileno(fd), &res.buf, sizeof(res.buf));
+      // printf("bytes_read: %d\n", bytes_read);
+      if (bytes_read == 0)
+      {
+        break;
+      }
+      if (bytes_read < 0)
+      {
+        send(sock, "\0", sizeof("\0"), 0);
+        close(sock);
+        fclose(fd);
+        exit(EXIT_FAILURE);
+      }
+
+      // we use a loop because all of the data may not be written in a single write call.
+      char *p = res.buf;
+      while (bytes_read > 0)
+      {
+        // write() is equivalent to send() with a flag of 0
+        int bytes_written = write(sock, p, bytes_read);
+        if (bytes_written <= 0)
+        {
+          perror("unable to send data");
+          close(sock);
+          fclose(fd);
+          exit(EXIT_FAILURE);
+        }
+        // printf("bytes_written: %d\n", bytes_written);
+
+        bytes_read -= bytes_written;
+        p += bytes_written;
+      }
+    }
+
+    free(out_file);
+    fclose(fd);
   }
   
-  pid_t pid = fork();
-  if (pid == -1)
-  {
-    printf("Could not create new process\n");
-    exit(EXIT_FAILURE);
-  }
-  if (pid == 0)
-  {
-     printf("before exec\n");
-    execv(path, args);
-    printf("After execn");
-  }
-
-  int status;
-  waitpid(pid, &status, 0);
-  printf("After waitpid\n");
-
-  // TOOD get file
-
-  FILE *fd = fopen(out_file, "rwx");
-  if (fd == NULL)
-  {
-    perror("Could not open result file");
-    exit(EXIT_FAILURE);
-  }
-
-  struct stat file_stat;
-  if (fstat(fileno(fd), &file_stat) < 0)
-  {
-    perror("Could not get file stats");
-    exit(EXIT_FAILURE);
-  }
-  printf("File size: %ld\n", file_stat.st_size);
-
-  // send filesize
-  send(sock, &file_stat.st_size, sizeof(file_stat.st_size), 0);
-
-  // send file
-  off_t* offset = NULL;
-  if (sendfile(fileno(fd), sock, offset, file_stat.st_size) == -1)
-  {
-    perror("could not send file");
-    exit(EXIT_FAILURE);
-  }
- 
-  free(out_file);
   close(sock);
   exit(EXIT_SUCCESS);
 }
@@ -328,7 +396,7 @@ void daemonize(const char *cmd)
   }
 
   /* Close all open file descriptors */
-  printf("limit: %lu\n", rl.rlim_max);
+  printf("limit: %llu\n", rl.rlim_max);
   if (rl.rlim_max == RLIM_INFINITY)
     rl.rlim_max = 1024;
   for (i = 0; i < rl.rlim_max; i++)
@@ -350,4 +418,13 @@ void create_results_dir()
       perror("Could not create results directory\n");
     }
   }
+}
+
+// sends nothing to the client
+void send_nothing(int sock)
+{
+  char msg[] = "";
+  long size = (long)sizeof(msg);
+  send(sock, &size, sizeof(size), 0);
+  send(sock, &msg, sizeof(msg), 0);
 }

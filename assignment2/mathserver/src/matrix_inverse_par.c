@@ -126,8 +126,8 @@ void find_inverse()
         {
 
             args[i].p = p;
-            args[i].start_row = ceil(i * ((double)N / NUM_THREADS));
-            args[i].end_row = ceil((i + 1) * ((double)N / NUM_THREADS));
+            args[i].start_row = (int) ceil(i * ((double)N / NUM_THREADS));
+            args[i].end_row = (int) ceil((i + 1) * ((double)N / NUM_THREADS));
             // if (p == 0)
             // {
             //     printf("%zu> start: %d, end: %d\n", i, args[i].start_row, args[i].end_row);
