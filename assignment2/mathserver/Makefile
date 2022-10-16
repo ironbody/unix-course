@@ -5,24 +5,24 @@ SDIR=./src
 CC=gcc
 CFLAGS=-I$(IDIR) -Wall -g -std=gnu99
 
-LIBS=-lpthread
+LIBS=-lpthread -lm
 
 all: server client matinvpar kmeanspar
 
 $(ODIR)/%.o:$(SDIR)/%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
 
 server: $(ODIR)/server.o
-	$(CC) $(CFLAGS) $(LIBS) -o server $<
+	$(CC) $(CFLAGS) -o server $< $(LIBS)
 
 client: $(ODIR)/client.o
-	$(CC) $(CFLAGS) $(LIBS) -o client $<
+	$(CC) $(CFLAGS) -o client $< $(LIBS)
 	
 matinvpar: $(ODIR)/matrix_inverse_par.o
-	$(CC) $(CFLAGS) $(LIBS) -o matinvpar $< -lm
+	$(CC) $(CFLAGS) -o matinvpar $< $(LIBS)
 
 kmeanspar: $(ODIR)/kmeans_par.o
-	$(CC) $(CFLAGS) $(LIBS) -o kmeanspar $< -lm
+	$(CC) $(CFLAGS) -o kmeanspar $< $(LIBS)
 
 clean:
 	rm -f server client matinvpar kmeanspar
