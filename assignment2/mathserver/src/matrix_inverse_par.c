@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 {
     // pthread_mutex_init(&lock, NULL);
 
-    printf("Matrix Inverse\n");
+    // printf("Matrix Inverse\n");
     // int i, timestart, timeend, iter;
 
     Init_Default();           /* Init default values	*/
@@ -164,10 +164,10 @@ void Init_Matrix()
         }
     }
 
-    printf("\nsize      = %dx%d ", N, N);
-    printf("\nmaxnum    = %d \n", maxnum);
-    printf("Init	  = %s \n", Init);
-    printf("Initializing matrix...");
+    // printf("\nsize      = %dx%d ", N, N);
+    // printf("\nmaxnum    = %d \n", maxnum);
+    // printf("Init	  = %s \n", Init);
+    // printf("Initializing matrix...");
 
     if (strcmp(Init, "rand") == 0)
     {
@@ -196,7 +196,7 @@ void Init_Matrix()
         }
     }
 
-    printf("done \n\n");
+    // printf("done \n\n");
     if (PRINT == 1)
     {
         // Print_Matrix(A, "Begin: Input");

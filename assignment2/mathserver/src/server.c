@@ -63,7 +63,7 @@ int main(int argc, char **argv)
   bind(sfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr));
   listen(sfd, 1);
 
-  printf("Listening..\n");
+  printf("Listening for ..\n");
 
   for (unsigned long long i = 1;; i++)
   {
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 void handle_conn(int sock, unsigned long long id)
 {
 
-  printf("Handled connection #%llu\n", id);
+  printf("Connected with client %llu\n", id);
 
   for (;;)
   {
@@ -108,13 +108,13 @@ void handle_conn(int sock, unsigned long long id)
       break;
     }
 
-    printf("Recieved: %s\n", cmd.buf);
+    printf("Client %llu commanded: %s\n", id, cmd.buf);
 
     // num of args is num of spaces +1,
     // +3 because inserting "-o filename" is +2 args,
     // and space for a NULL arg at the end is +1
     int in_arg_count = count_spaces(cmd.buf) + 1;
-    printf("In_arg_count: %d\n", in_arg_count);
+    // printf("In_arg_count: %d\n", in_arg_count);
     int total_arg_count = in_arg_count + 3;
     char *args[total_arg_count];
     extract_args(cmd.buf, in_arg_count, args);
@@ -143,10 +143,10 @@ void handle_conn(int sock, unsigned long long id)
     args[total_arg_count - 2] = out_filepath;
     args[total_arg_count - 1] = NULL;
 
-    for (size_t i = 0; i < total_arg_count - 1; i++)
-    {
-      printf("%s\n", args[i]);
-    }
+    // for (size_t i = 0; i < total_arg_count - 1; i++)
+    // {
+    //   printf("%s\n", args[i]);
+    // }
 
     pid_t pid = fork();
     if (pid == -1)
@@ -163,7 +163,7 @@ void handle_conn(int sock, unsigned long long id)
 
     int status;
     waitpid(pid, &status, 0);
-    printf("After waitpid\n");
+    // printf("After waitpid\n");
 
     FILE *fd = fopen(out_filepath, "rwx");
     if (fd == NULL)
@@ -191,8 +191,9 @@ void handle_conn(int sock, unsigned long long id)
 
     res.size = htonl(file_stat.st_size);
     strncpy(res.file_name, out_filename, strlen(out_filename) + 1);
-    printf("File size: %ld\n", file_stat.st_size);
+    // printf("File size: %ld\n", file_stat.st_size);
 
+    printf("Sending solution: %s\n", out_filename);
     // send filedata
     send(sock, &res, sizeof(res), 0);
 
