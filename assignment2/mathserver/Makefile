@@ -27,6 +27,7 @@ kmeanspar: $(ODIR)/kmeans_par.o
 clean:
 	rm -f server client matinvpar kmeanspar
 	rm -f objects/*
-	rm -f kmeans-res*
+	rm -f computed_results/*
+	rm -f kmeans-client*
 	rm -f results.txt
 	rm -f matrix_result.txt
