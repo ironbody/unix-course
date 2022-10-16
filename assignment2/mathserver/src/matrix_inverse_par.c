@@ -139,7 +139,7 @@ void find_inverse()
                            (void *)&args[i]); // args to that function
         }
 
-        for (int id = 0; id < N; id++)
+        for (int id = 0; id < NUM_THREADS; id++)
         {
             pthread_join(threads[id], NULL);
         }
