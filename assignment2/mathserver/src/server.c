@@ -104,7 +104,7 @@ void handle_conn(int sock, unsigned long long id)
 
     if (bytes_rec == 0)
     {
-      printf("Connection closed!\n");
+      printf("Client %llu disconnected!\n", id);
       break;
     }
 
