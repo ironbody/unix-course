@@ -27,7 +27,7 @@ int main(int argc, char **argv)
   servAddr.sin_port = htons(PORT); // use some unused port number
   servAddr.sin_addr.s_addr = IP;
 
-  printf("About to connect to the server\n");
+  printf("Connected to server\n");
 
   int connectStatus = connect(cd, (struct sockaddr *)&servAddr, sizeof(servAddr));
   if (connectStatus == -1)
@@ -36,11 +36,11 @@ int main(int argc, char **argv)
     exit(0);
   }
 
-  printf("Established connection with the server!\n\n");
+  // printf("Established connection with the server!\n\n");
 
   for (;;)
   {
-    printf("Please write your command: ");
+    printf("Enter a command for the server: ");
     struct command cmd;
     fgets(cmd.buf, sizeof(cmd.buf), stdin);
 
@@ -74,13 +74,13 @@ int main(int argc, char **argv)
     res.size = ntohl(res.size);
     
 
-    printf("Received a message from server! %lld bytes\n\n", res.size);
+    // printf("Received a message from server! %lld bytes\n\n", res.size);
 
-    printf("filename: %s\n", res.file_name);
+    printf("Received the solution: %s\n", res.file_name);
     FILE* fp = fopen(res.file_name, "w");
     // FILE* fp = fopen("result.txt", "w");
 
-    printf("Message: \n");
+    // printf("Message: \n");
 
     char FILE_BUF[1024];
 
@@ -103,8 +103,8 @@ int main(int argc, char **argv)
       // write(fp, res.buf, msize);
       fwrite(FILE_BUF, sizeof(char), msize, fp);
 
-      printf("%s\n", FILE_BUF);
-      printf("%lld\n", recieved_data);
+      // printf("%s\n", FILE_BUF);
+      // printf("%lld\n", recieved_data);
     } 
 
     fclose(fp);
