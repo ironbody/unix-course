@@ -94,6 +94,12 @@ void handle_conn(int sock, unsigned long long id)
     struct command cmd;
 
     int bytes_rec = recv(sock, &cmd, sizeof(cmd), 0);
+    if (bytes_rec == -1)
+    {
+      perror("could not recieve data");
+      exit(EXIT_FAILURE);
+    }
+    
     if (bytes_rec == 0)
     {
       printf("Connection closed!\n");
@@ -108,7 +114,7 @@ void handle_conn(int sock, unsigned long long id)
     int in_arg_count = count_spaces(cmd.buf) + 1;
     printf("In_arg_count: %d\n", in_arg_count);
     int total_arg_count = in_arg_count + 3;
-    char *args[in_arg_count];
+    char *args[total_arg_count];
     extract_args(cmd.buf, in_arg_count, args);
 
     char *out_file = NULL;
