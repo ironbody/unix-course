@@ -73,11 +73,15 @@ int main(int argc, char **argv)
 
     res.size = ntohl(res.size);
     
-
     // printf("Received a message from server! %lld bytes\n\n", res.size);
 
     printf("Received the solution: %s\n", res.file_name);
     FILE* fp = fopen(res.file_name, "w");
+    if (fp == NULL)
+    {
+      perror("Error sent by server");
+      exit(EXIT_FAILURE);
+    }
     // FILE* fp = fopen("result.txt", "w");
 
     // printf("Message: \n");
