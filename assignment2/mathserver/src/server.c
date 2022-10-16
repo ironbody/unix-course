@@ -190,6 +190,7 @@ void handle_conn(int sock, unsigned long long id)
     char *out_filename = out_filepath + strlen("./computed_results/");
 
     res.size = htonl(file_stat.st_size);
+    res.file_name[0] = '\0';
     strncpy(res.file_name, out_filename, strlen(out_filename) + 1);
     // printf("File size: %ld\n", file_stat.st_size);
 
