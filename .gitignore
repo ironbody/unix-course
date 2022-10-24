@@ -3,8 +3,9 @@
 .vscode/
 .git-backup
 datecheck22.sh
-test*
 *.zip
+
+assignment1/test/*
 
 assignment2/matinv
 assignment2/matrix_result.txt
