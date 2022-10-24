@@ -28,7 +28,7 @@ clean:
 	rm -f server client matinv kmeans matinvpar kmeanspar
 	rm -f objects/*
 	rm -f computed_results/*
-	rm -f kmeans-client*
+	rm -f kmeans_client*
 	rm -f matinv_c*
 	rm -f results.txt
 	rm -f matrix_result.txt
