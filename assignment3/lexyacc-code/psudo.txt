@@ -1,0 +1,28 @@
+	push	732
+	pop	a
+	push	2684
+	pop	b
+L000:
+	push	a
+	push	b
+	compNE
+	jz	L001
+	push	a
+	push	b
+	compGT
+	jz	L002
+	push	a
+	push	b
+	sub
+	pop	a
+	jmp	L003
+L002:
+	push	b
+	push	a
+	sub
+	pop	b
+L003:
+	jmp	L000
+L001:
+	push	a
+	print
