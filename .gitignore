@@ -20,3 +20,9 @@ assignment2/mathserver/results.txt
 assignment2/mathserver/computed_results/*
 assignment2/mathserver/kmeanspar
 assignment2/mathserver/matinvpar
+
+assignment3/compiler/*.exe
+assignment3/compiler/*.o
+assignment3/compiler/*.tab.h
+assignment3/compiler/*.yy.c
+assignment3/compiler/*.tab.c
