@@ -27,3 +27,4 @@ assignment3/lexyacc-code/*.o
 assignment3/lexyacc-code/*.tab.h
 assignment3/lexyacc-code/*.yy.c
 assignment3/lexyacc-code/*.tab.c
+assignment3/lexyacc-code/output*.txt
