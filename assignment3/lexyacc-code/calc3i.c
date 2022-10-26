@@ -54,8 +54,10 @@ int ex(nodeType *p)
             break;
         case PRINT:
             ex(p->opr.op[0]);
-            // printf("\t%s%%edi\n"); // print
-            printf("\tcall\tputs\n");
+            // pop in i någgot reg rsi
+            printf("\tpopq\t%%rsi\n");
+            printf("\tmovq\t$string,\t%%rdi\n");
+            printf("\tcall\tprintf\n");
             break;
         case '=':
             ex(p->opr.op[1]);
