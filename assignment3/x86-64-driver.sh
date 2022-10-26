@@ -15,14 +15,19 @@ then
 fi
 
 OUT_FILE="${NAME}.s"
+
 echo ".data
 sym:  
 	.ds.d	26
 string: 
 	.asciz	\"%d\\\n\"
-.text" > $OUT_FILE
+.text
+main:" > $OUT_FILE
 
 ./lexyacc-code/calc3i.exe < $FILE >> $OUT_FILE
+
+echo "	movq	0, %rdi
+	call exit" >> $OUT_FILE
 
 # 1. writes the required prologue (e.g. define data and text segment, define the
 # symbol table) into a new file with the ending ’.s’
