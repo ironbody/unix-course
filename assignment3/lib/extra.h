@@ -2,10 +2,11 @@
 #define EXTRA_H
 
 #include <stdio.h>
+#include <math.h>
 
-void fact();
-void gcd();
-void lntwo();
+int fact(int x);
+int gcd(int x, int y);
+int lntwo(int x);
 
 // 1. fact - Take one argument and return the factorial of that argument. For
 // example: 0! = 1.
