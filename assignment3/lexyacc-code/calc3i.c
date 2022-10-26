@@ -13,10 +13,10 @@ int ex(nodeType *p)
     switch (p->type)
     {
     case typeCon:
-        printf("\tpushq\t%d\n", p->con.value); // push
+        printf("\tpushq\t$%d\n", p->con.value); // push
         break;
     case typeId:
-        printf("\tpushq\t%c\n", p->id.i + 'a'); // TODO push index of symbol array
+        printf("\tpushq\t($sym, %u, $8)\n", p->id.i + 'a'); // TODO push index of symbol array
         break;
     case typeOpr:
         switch (p->opr.oper)
