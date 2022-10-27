@@ -16,18 +16,23 @@ fi
 
 OUT_FILE="${NAME}.s"
 
-echo ".data
-sym:  
-	.ds.d	26
+echo ".section .data
 string: 
-	.asciz	\"%d\\\n\"
-.text
-main:" > $OUT_FILE
+ 	.asciz	\"%d\\\n\"
+
+sym: 
+	.ds.d	26
+
+.section .text
+	.global main
+main:
+	push 	%rbx" > $OUT_FILE
 
 ./lexyacc-code/calc3i.exe < $FILE >> $OUT_FILE
 
-echo "	movq	0, %rdi
-	call exit" >> $OUT_FILE
+echo "	pop 	%rbx
+	xor 	%rax, %rax
+	ret" >> $OUT_FILE
 
 # 1. writes the required prologue (e.g. define data and text segment, define the
 # symbol table) into a new file with the ending ’.s’
@@ -35,3 +40,4 @@ echo "	movq	0, %rdi
 # given ’.calc’ file
 # 3. appends an epilogue (e.g. for calling the exit function/system call)
 
+# gcc -m64 -g -no-pie "test2.s" 
