@@ -55,7 +55,7 @@ int ex(nodeType *p)
             ex(p->opr.op[0]);
             // pop in i någgot reg rsi
             printf("\tpop\t%%rsi\n");
-            printf("\tmov\t$string, %%rdi\n");
+            printf("\tlea\tstring(%%rip), %%rdi\n");
             printf("\tcall\tprintf\n");
             break;
         case '=':
