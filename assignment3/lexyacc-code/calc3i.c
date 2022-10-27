@@ -13,10 +13,10 @@ int ex(nodeType *p)
     switch (p->type)
     {
     case typeCon:
-        printf("\tpushq\t$%d\n", p->con.value); // push
+        printf("\tpush\t$%d\n", p->con.value);
         break;
     case typeId:
-        printf("\tpushq\t($sym, %u, $8)\n", p->id.i + 'a'); // TODO push index of symbol array
+        printf("\tpush\tsym+%u(%%rip)\n", 8 * p->id.i);
         break;
     case typeOpr:
         switch (p->opr.oper)
@@ -24,10 +24,9 @@ int ex(nodeType *p)
         case WHILE:
             printf("L%03d:\n", lbl1 = lbl++);
             ex(p->opr.op[0]);
-            printf("\tcmpq\t$0,\t%%rax\n");
             printf("\tjz\tL%03d\n", lbl2 = lbl++);
             ex(p->opr.op[1]);
-            printf("\tjz\tL%03d\n", lbl1);
+            printf("\tjmp\tL%03d\n", lbl1);
             printf("L%03d:\n", lbl2);
             break;
         case IF:
@@ -35,7 +34,7 @@ int ex(nodeType *p)
             if (p->opr.nops > 2)
             {
                 /* if else */
-                printf("\tcmpq\t$0\t%%rax\n");
+                // printf("\tcmpq\t$0, %%rax\n");
                 printf("\tjz\tL%03d\n", lbl1 = lbl++); // jz
                 ex(p->opr.op[1]);
                 printf("\tjmp\tL%03d\n", lbl2 = lbl++);
@@ -46,7 +45,7 @@ int ex(nodeType *p)
             else
             {
                 /* if */
-                printf("\tcmpq\t$0\t%%rax\n");
+                // printf("\tcmpq\t$0, %%rax\n");
                 printf("\tjz\tL%03d\n", lbl1 = lbl++); // jz
                 ex(p->opr.op[1]);
                 printf("L%03d:\n", lbl1);
@@ -55,13 +54,16 @@ int ex(nodeType *p)
         case PRINT:
             ex(p->opr.op[0]);
             // pop in i någgot reg rsi
-            printf("\tpopq\t%%rsi\n");
-            printf("\tmovq\t$string,\t%%rdi\n");
+            printf("\tpop\t%%rsi\n");
+            printf("\tmov\t$string, %%rdi\n");
             printf("\tcall\tprintf\n");
             break;
         case '=':
             ex(p->opr.op[1]);
-            printf("\tpopq\t%c\n", p->opr.op[0]->id.i + 'a'); // pop
+            //printf("\tpopq\t%c\n", p->opr.op[0]->id.i + 'a'); // pop
+            
+            printf("\tpop\tsym+%u(%%rip)\n", 8 * p->opr.op[0]->id.i);
+            // printf("\tmov\t%%r10, ($sym, $%u, $8)\n", p->opr.op[0]->id.i);
             break;
         case UMINUS:
             ex(p->opr.op[0]);
@@ -112,51 +114,61 @@ int ex(nodeType *p)
             case '<':
                 printf("\tpopq\t%%r10\n"); // sätt senaste variablerna i r10 och r11
                 printf("\tpopq\t%%r11\n");
-                printf("\tcmpq\t%%r11\t%%r10\n"); // compare
-                printf("\tmovq\t$1,\t%%rax\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
-                printf("\tcmovl\t$0,\t%%rax\n");  // flytta 0 i rax ifall comp är true
+                printf("\tcmpq\t%%r11, %%r10\n"); // compare
+                printf("\tmovq\t$1, %%r9\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
+                printf("\tcmovl\t$0, %%r9\n");  // flytta 0 i rax ifall comp är true
+                printf("\tcmpq\t$1, %%r9\n");
+
                 // printf("\tcmovne\tS,\tD\n");
                 // printf("\tcompLT\n");
                 break;
             case '>':
                 printf("\tpopq\t%%r10\n"); // sätt senaste variablerna i r10 och r11
                 printf("\tpopq\t%%r11\n");
-                printf("\tcmpq\t%%r11\t%%r10\n"); // compare
-                printf("\tmovq\t$1,\t%%rax\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
-                printf("\tcmovg\t$0,\t%%rax\n");  // flytta 0 i rax ifall comp är true
+                printf("\tcmpq\t%%r10, %%r11\n"); // compare
+                printf("\tmovq\t$1, %%r9\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
+                printf("\tmovq\t$0, %%r10\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
+                printf("\tcmovg\t%%r10, %%r9\n");  // flytta 0 i rax ifall comp är true
+                printf("\tcmpq\t$1, %%r9\n");
                 // printf("\tcompGT\n");
                 break;
             case GE:
                 printf("\tpopq\t%%r10\n"); // sätt senaste variablerna i r10 och r11
                 printf("\tpopq\t%%r11\n");
-                printf("\tcmpq\t%%r11\t%%r10\n"); // compare
-                printf("\tmovq\t$1,\t%%rax\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
-                printf("\tcmovge\t$0,\t%%rax\n"); // flytta 0 i rax ifall comp är true
+                printf("\tcmpq\t%%r11, %%r10\n"); // compare
+                printf("\tmovq\t$1, %%r9\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
+                printf("\tcmovge\t$0, %%r9\n");  // flytta 0 i rax ifall comp är true
+                printf("\tcmpq\t$1, %%r9\n");
+
                 // printf("\tcompGE\n");
                 break;
             case LE:
                 printf("\tpopq\t%%r10\n"); // sätt senaste variablerna i r10 och r11
                 printf("\tpopq\t%%r11\n");
-                printf("\tcmpq\t%%r11\t%%r10\n"); // compare
-                printf("\tmovq\t$1,\t%%rax\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
-                printf("\tcmovle\t$0,\t%%rax\n"); // flytta 0 i rax ifall comp är true
+                printf("\tcmpq\t%%r11, %%r10\n"); // compare
+                printf("\tmovq\t$1, %%r9\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
+                printf("\tcmovle\t$0, %%r9\n");  // flytta 0 i rax ifall comp är true
+                printf("\tcmpq\t$1, %%r9\n");
                 // printf("\tcompLE\n");
                 break;
             case NE:
                 printf("\tpopq\t%%r10\n"); // sätt senaste variablerna i r10 och r11
                 printf("\tpopq\t%%r11\n");
-                printf("\tcmpq\t%%r11\t%%r10\n"); // compare
-                printf("\tmovq\t$1,\t%%rax\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
-                printf("\tcmovne\t$0,\t%%rax\n"); // flytta 0 i rax ifall comp är true
-                printf("\tpop\t%%r10\n");
+                printf("\tcmpq\t%%r10, %%r11\n"); // compare
+                printf("\tmovq\t$1, %%r9\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
+                printf("\tmovq\t$0, %%r10\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
+                printf("\tcmovne\t%%r10, %%r9\n");  // flytta 0 i rax ifall comp är true
+                printf("\tcmpq\t$1, %%r9\n");
+                // printf("\tpop\t%%r10\n");
                 // printf("\tcompNE\n");
                 break;
             case EQ:
                 printf("\tpopq\t%%r10\n"); // sätt senaste variablerna i r10 och r11
                 printf("\tpopq\t%%r11\n");
-                printf("\tcmpq\t%%r11\t%%r10\n"); // compare
-                printf("\tmovq\t$1,\t%%rax\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
-                printf("\tcmove\t$0,\t%%rax\n");  // flytta 0 i rax ifall comp är true
+                printf("\tcmpq\t%%r11, %%r10\n"); // compare
+                printf("\tmovq\t$1, %%r9\n");   // flytta 1 i rax så att rax != 0 ifall comp är false
+                printf("\tcmove\t$0,%%r9\n");  // flytta 0 i rax ifall comp är true
+                printf("\tcmpq\t$1, %%r9\n");
                 // printf("\tcompEQ\n");
                 break;
             }
