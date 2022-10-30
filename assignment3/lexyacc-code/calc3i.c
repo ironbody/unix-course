@@ -71,12 +71,17 @@ int ex(nodeType *p)
             break;
         case FACT:
             ex(p->opr.op[0]);
-            // printf("\tfact\n"); // todo
-            printf("\tfact\n");
+
+            printf("\tpop %%rdi\n");
+            printf("\tcall fact\n");
+            printf("\npush %%rax\n");
             break;
         case LNTWO:
             ex(p->opr.op[0]);
-            printf("\nsar\t$1,\tD\n"); // todo
+
+            printf("\tpop %%rdi\n");
+            printf("\ncall lntwo\n"); 
+            printf("\npush %%rax\n");
             break;
         default:
             ex(p->opr.op[0]);
@@ -84,7 +89,11 @@ int ex(nodeType *p)
             switch (p->opr.oper)
             {
             case GCD:
-                printf("\tgcd\n"); // todo
+                printf("\tpop %%rsi\n");
+                printf("\tpop %%rdi\n");
+                printf("\tcall gcd\n");
+                printf("\npush %%rax\n");
+
                 break;
             case '+':
                 printf("\tpopq\t%%r11\n");
