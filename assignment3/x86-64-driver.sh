@@ -6,8 +6,8 @@ then
 	echo "no file"
 fi
 
-NAME=`echo $FILE | cut -d '.' -f 1`
-EXT=`echo $FILE | cut -d '.' -f 2`
+NAME=`basename $FILE | cut -d '.' -f 1`
+EXT=`basename $FILE | cut -d '.' -f 2`
 
 if [ "$EXT" != "calc" ]
 then
@@ -25,14 +25,17 @@ sym:
 
 .section .text
 	.global main
+	.type main, @function
 main:
 	push 	%rbx" > $OUT_FILE
 
-./lexyacc-code/calc3i.exe < $FILE >> $OUT_FILE
+./bin/calc3i.exe < $FILE >> $OUT_FILE
 
 echo "	pop 	%rbx
 	xor 	%rax, %rax
 	ret" >> $OUT_FILE
+
+gcc -m64 -fPIC -g -o $NAME $OUT_FILE -L./lib -lgcd -lfact -llntwo
 
 # 1. writes the required prologue (e.g. define data and text segment, define the
 # symbol table) into a new file with the ending ’.s’
