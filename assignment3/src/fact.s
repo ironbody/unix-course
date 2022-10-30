@@ -6,7 +6,7 @@ fact:
 	mov $1, %rax
 start:
 	cmp 	$1, %rdi
-	je 		end
+	jle 	end
 	imul 	%rdi, %rax
 	dec 	%rdi
 	jmp 	start
