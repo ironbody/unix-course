@@ -35,3 +35,8 @@ clean:
 	rm -f bin/*
 	rm -f lib/*
 	rm -f objects/*
+	rm -f lexyacc-code/lex.yy.c
+	rm -f lexyacc-code/lex.yy.o
+	rm -f lexyacc-code/y.tab.c
+	rm -f lexyacc-code/y.tab.o
+	rm -f lexyacc-code/y.tab.h
