@@ -29,3 +29,6 @@ assignment3/lexyacc-code/*.yy.c
 assignment3/lexyacc-code/*.tab.c
 assignment3/lexyacc-code/output*.txt
 assignment3/lexyacc-code/tes*.s
+assignment3/lib/*
+assignment3/bin/*
+assignment3/objects/*
